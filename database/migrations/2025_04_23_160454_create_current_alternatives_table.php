@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('rankings', function (Blueprint $table) {
+        Schema::create('current_alternatives', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_ranking_id')->constrained('rankings')->onDelete('cascade');
-            $table->foreignId('criteria_id')->constrained('criterias');
-            $table->foreignId('sub_criteria_id')->constrained('sub_criterias');
+            $table->foreignId('current_user_ranking_id')->constrained('current_users_rankings')->onDelete('cascade');
+            $table->foreignId('alternative_id')->constrained('alternatives');
+            $table->string('alternative_name');
+            $table->double('score');
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('rankings');
+        Schema::dropIfExists('current_alternatives');
     }
 };

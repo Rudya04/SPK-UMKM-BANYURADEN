@@ -7,14 +7,13 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class UserRanking extends Model
+class CurrentUserRanking extends Model
 {
     protected $guarded = ['id'];
-    protected $table = 'users_rankings';
+    protected $table = 'current_users_rankings';
 
     protected $fillable = [
         'user_id',
-        'alternative_id',
         'reference_code',
     ];
 
@@ -27,5 +26,4 @@ class UserRanking extends Model
     {
         return $this->hasMany(Ranking::class, 'user_ranking_id')->orderBy('id');
     }
-
 }

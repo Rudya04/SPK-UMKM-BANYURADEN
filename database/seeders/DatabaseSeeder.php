@@ -25,6 +25,9 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             RolePermissionSeeder::class,
             UserSeeder::class,
+            CriteriaSeeder::class,
+            SubCriteriaSeeder::class,
+            AlternativeSeeder::class
         ]);
     }
 }

@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\Alternative;
+use App\Models\AlternativeRanking;
 use App\Models\Criteria;
+use App\Models\CurrentAlternative;
+use App\Models\CurrentUserRanking;
 use App\Models\Ranking;
 use App\Models\SubCriteria;
 use App\Models\User;
 use App\Models\UserRanking;
+use App\Traits\CalculationTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +21,8 @@ use Illuminate\Support\Str;
 
 class RankingController extends Controller
 {
+    use CalculationTrait;
+
     public function index()
     {
         return view('ranking.ranking');
@@ -27,13 +33,13 @@ class RankingController extends Controller
         $userId = Auth::id();
         $alternatives = Alternative::query()->where('user_id', $userId)->orderByDesc('id')->get();
         $criterias = Criteria::with(['subCriterias'])->where('user_id', $userId)->get();
-        $rankings = UserRanking::with(['alternative', 'rankings.criteria', 'rankings.sub_criteria'])->where('user_id', $userId)
-            ->orderByDesc('id')->get();
+        $rankings = UserRanking::query()->where('user_id', $userId)->get();
         return view('ranking.create-ranking')->with([
             'alternatives' => $alternatives,
             'criterias' => $criterias,
-            'rankings' => $rankings
+            'rankings' => $rankings,
         ]);
+
     }
 
     public function create(Request $request)
@@ -64,16 +70,17 @@ class RankingController extends Controller
 
         try {
             DB::beginTransaction();
+            $userId = Auth::id();
             $subCriteriaIds = [];
             foreach ($data as $key => $value) {
                 $subCriteriaIds[] = $value;
             }
 
             $subCriterias = SubCriteria::query()->whereIn('id', $subCriteriaIds)->get();
+
             $userRanking = UserRanking::query()->create([
-                'user_id' => Auth::id(),
-                'alternative_id' => $request->input('alternative_id'),
-                'reference_code' => Str::uuid(),
+                'user_id' => $userId,
+                'alternative_id' => $request->input('alternative_id')
             ]);
 
             $rankigs = [];
@@ -85,6 +92,60 @@ class RankingController extends Controller
             }
 
             $userRanking->rankings()->createMany($rankigs);
+            DB::commit();
+            return redirect()->route('ranking.save')->with('success', 'Ranking berhasil ditambahkan');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return back()->withErrors([
+                'error' => 'Gagal menambah ranking.',
+            ]);
+        }
+    }
+
+    public function calculation()
+    {
+        try {
+            DB::beginTransaction();
+            $userId = Auth::id();
+            $criterias = Criteria::query()->where('user_id', $userId)
+                ->orderBy('id')->get()->toArray();
+            $rankings = UserRanking::with(
+                [
+                    'alternative',
+                    'rankings.criteria',
+                    'rankings.sub_criteria',
+                ]
+            )->where('user_id', $userId)->orderBy('id')->get();
+            $maxBobot = DB::table('rankings')
+                ->select('criterias.slug as name', DB::raw('MAX(sub_criterias.value) as max_bobot'))
+                ->join('criterias', 'criterias.id', '=', 'rankings.criteria_id')
+                ->join('sub_criterias', 'sub_criterias.id', '=', 'rankings.sub_criteria_id')
+                ->groupBy('rankings.criteria_id')
+                ->get();
+            $normalization = $this->normalizationBobot($criterias);
+
+            $userRanking = CurrentUserRanking::query()->create([
+                'user_id' => $userId,
+                'reference_code' => Str::uuid()
+            ]);
+
+            foreach ($rankings as $ranking) {
+                $score = 0;
+                $currentCriteria = $this->calculationScore($normalization, $ranking->rankings, $maxBobot);
+                foreach ($currentCriteria as $criteria) {
+                    $score+= $criteria['score'];
+                }
+                $currentAlternative = CurrentAlternative::query()->create([
+                    'current_user_ranking_id' => $userRanking->id,
+                    'alternative_id' => $ranking->alternative_id,
+                    'alternative_name' => $ranking->alternative->name,
+                    'score' => $score,
+                ]);
+
+                $currentAlternative->current_criterias()->createMany($currentCriteria);
+
+            }
             DB::commit();
             return redirect()->route('ranking.save')->with('success', 'Ranking berhasil ditambahkan');
         } catch (\Exception $e) {

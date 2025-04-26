@@ -69,6 +69,7 @@
                 <div class="card fade-in" style="animation-delay: 0.4s">
                     <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">List Perankingan</h5>
+                        <a href="{{ route('ranking.calculation') }}" class="btn btn-info float-left">Hitung Ranking</a>
                     </div>
                     <div class="card-body">
                         <div class="table-wrapper">
