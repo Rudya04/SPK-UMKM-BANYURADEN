@@ -49,4 +49,17 @@ trait CalculationTrait
 
         return 0;
     }
+
+    public function findStatusScore($score)
+    {
+        if ($score >= 0.8) {
+            return 'Sangat Layak';
+        } elseif ($score >= 0.7) {
+            return 'Layak';
+        } elseif ($score >= 0.6) {
+            return 'Cukup Layak';
+        } else {
+            return 'Tidak Layak';
+        }
+    }
 }

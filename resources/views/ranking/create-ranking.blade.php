@@ -69,7 +69,10 @@
                 <div class="card fade-in" style="animation-delay: 0.4s">
                     <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">List Perankingan</h5>
-                        <a href="{{ route('ranking.calculation') }}" class="btn btn-info float-left">Hitung Ranking</a>
+                        <form action="{{ route('ranking.calculation') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="btn btn-info float-left">Hitung Ranking</button>
+                        </form>
                     </div>
                     <div class="card-body">
                         <div class="table-wrapper">

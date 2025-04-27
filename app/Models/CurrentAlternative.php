@@ -13,7 +13,7 @@ class CurrentAlternative extends Model
 
     public function current_criterias(): HasMany
     {
-        return $this->hasMany(CurrentCriteria::class);
+        return $this->hasMany(CurrentCriteria::class, 'current_alternative_id', 'id')->orderBy('criteria_id');
     }
 
 }

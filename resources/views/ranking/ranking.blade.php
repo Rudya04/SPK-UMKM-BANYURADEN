@@ -10,7 +10,7 @@
             <div class="col-xl-12 mb-4">
                 <div class="card fade-in" style="animation-delay: 0.4s">
                     <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">List Ranking</h5>
+                        <h5 class="card-title mb-0">History Ranking</h5>
                         <a href="{{ route('ranking.save') }}" class="btn btn-primary float-left">Buat Ranking</a>
                     </div>
                     <div class="card-body">
@@ -18,24 +18,22 @@
                             <thead>
                             <tr>
                                 <th scope="col">#</th>
-                                <th scope="col">Sub Name</th>
-                                <th scope="col">Nilai</th>
-                                <th scope="col">Name</th>
-                                <th scope="col">Bobot</th>
+                                <th scope="col">Tanggal</th>
+                                <th scope="col">Aksi</th>
                             </tr>
                             </thead>
                             <tbody>
-{{--                            @php($i = 1)--}}
-{{--                            @foreach($criterias as $criteria)--}}
-{{--                                <tr>--}}
-{{--                                    <th scope="row">{{ $i }}</th>--}}
-{{--                                    <td>{{ $criteria->name }}</td>--}}
-{{--                                    <td>{{ $criteria->value }}</td>--}}
-{{--                                    <td>{{ $criteria->criteria->name }}</td>--}}
-{{--                                    <td>{{ $criteria->criteria->value }}</td>--}}
-{{--                                </tr>--}}
-{{--                                @php($i++)--}}
-{{--                            @endforeach--}}
+                            @php($i = 1)
+                            @foreach($curentUserRanking as $userRanking)
+                                <tr>
+                                    <th scope="row">{{ $i }}</th>
+                                    <td>{{ $userRanking->created_at }}</td>
+                                    <td>
+                                        <a href="{{ route('ranking.show', ['reference_code' => $userRanking->reference_code]) }}"><span class="badge bg-primary">Detail</span></a>
+                                    </td>
+                                </tr>
+                                @php($i++)
+                            @endforeach
                             </tbody>
                         </table>
                     </div>

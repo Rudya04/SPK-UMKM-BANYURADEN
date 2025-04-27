@@ -25,7 +25,9 @@ class RankingController extends Controller
 
     public function index()
     {
-        return view('ranking.ranking');
+        $curentUserRanking = CurrentUserRanking::query()->where('user_id', Auth::id())
+            ->orderByDesc('id')->get();
+        return view('ranking.ranking')->with('curentUserRanking', $curentUserRanking);
     }
 
     public function save()
@@ -105,6 +107,7 @@ class RankingController extends Controller
 
     public function calculation()
     {
+        $uuid = Str::uuid();
         try {
             DB::beginTransaction();
             $userId = Auth::id();
@@ -127,14 +130,14 @@ class RankingController extends Controller
 
             $userRanking = CurrentUserRanking::query()->create([
                 'user_id' => $userId,
-                'reference_code' => Str::uuid()
+                'reference_code' => $uuid
             ]);
 
             foreach ($rankings as $ranking) {
                 $score = 0;
                 $currentCriteria = $this->calculationScore($normalization, $ranking->rankings, $maxBobot);
                 foreach ($currentCriteria as $criteria) {
-                    $score+= $criteria['score'];
+                    $score += $criteria['score'];
                 }
                 $currentAlternative = CurrentAlternative::query()->create([
                     'current_user_ranking_id' => $userRanking->id,
@@ -147,13 +150,45 @@ class RankingController extends Controller
 
             }
             DB::commit();
-            return redirect()->route('ranking.save')->with('success', 'Ranking berhasil ditambahkan');
+            return redirect()->route('ranking.show', ['reference_code' => $uuid]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
             return back()->withErrors([
-                'error' => 'Gagal menambah ranking.',
+                'error' => 'Gagal mengjitung ranking.',
             ]);
         }
+    }
+
+    public function show($referenceCode)
+    {
+        $response = collect();
+        $currentUserRanking = CurrentUserRanking::with(['current_alternatives.current_criterias'])->where('reference_code', $referenceCode)->firstOrFail()->toArray();
+        $bobots = DB::table('current_criterias')
+            ->select('current_criterias.criteria_name', DB::raw('ANY_VALUE(current_criterias.criteria_value) as value'))
+            ->join('current_alternatives', 'current_alternatives.id', '=', 'current_criterias.current_alternative_id')
+            ->where('current_alternatives.current_user_ranking_id', $currentUserRanking['id'])
+            ->groupBy('current_criterias.criteria_name', 'current_criterias.criteria_id')
+            ->orderBy('current_criterias.criteria_id')
+            ->get();
+
+        $bobotArray = json_decode(json_encode($bobots), true);
+        $normalization = $this->normalizationBobot($bobotArray);
+
+        foreach ($currentUserRanking['current_alternatives'] as $userRanking) {
+             $response->push([
+                 'alternative_name' => $userRanking['alternative_name'],
+                 'score' => $userRanking['score'],
+                 'status' => $this->findStatusScore($userRanking['score']),
+                 'current_criterias' => $userRanking['current_criterias']
+             ]);
+
+        }
+
+        return view('ranking.detail-ranking')->with([
+            'datas' => $response,
+            'bobots' => $bobots,
+            'normalizations' => $normalization,
+        ]);
     }
 }

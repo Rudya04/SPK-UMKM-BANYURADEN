@@ -49,7 +49,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/ranking', 'index')->name('ranking');
         Route::get('/ranking/create', 'save')->name('ranking.save');
         Route::post('/ranking/create', 'create')->name('ranking.submit');
-        Route::get('/ranking/calculation', 'calculation')->name('ranking.calculation');
+        Route::post('/ranking/calculation', 'calculation')->name('ranking.calculation');
+        Route::get('/ranking/{reference_code?}', 'show')->name('ranking.show');
     });
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

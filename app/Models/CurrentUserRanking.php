@@ -17,13 +17,9 @@ class CurrentUserRanking extends Model
         'reference_code',
     ];
 
-    public function alternative(): BelongsTo
+    public function current_alternatives(): HasMany
     {
-        return $this->belongsTo(Alternative::class, 'alternative_id', 'id');
-    }
-
-    public function rankings(): HasMany
-    {
-        return $this->hasMany(Ranking::class, 'user_ranking_id')->orderBy('id');
+        return $this->hasMany(CurrentAlternative::class, 'current_user_ranking_id', 'id')
+            ->orderByDesc('score');
     }
 }
