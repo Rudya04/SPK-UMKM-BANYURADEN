@@ -23,6 +23,7 @@
                         @endif
                         <form id="form-submit" action="{{ route("criteria.submit") }}" method="POST">
                             @csrf
+{{--                            <input type="text" name="id">--}}
                             <div class="mb-2">
                                 <label for="name" class="form-label">Nama</label>
                                 <input type="text" class="form-control" id="name" name="name" value="{{ old("name") }}">
@@ -41,7 +42,7 @@
                                     </div>
                                 @endif
                             </div>
-                            <button type="submit" class="btn btn-primary">Tambah</button>
+                            <button type="submit" id="save" class="btn btn-primary">Tambah</button>
                         </form>
                     </div>
                 </div>
@@ -59,6 +60,7 @@
                                 <th scope="col">#</th>
                                 <th scope="col">Nama</th>
                                 <th scope="col">Bobot (%)</th>
+                                <th scope="col">Aksi</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -66,8 +68,12 @@
                             @foreach($criterias as $criteria)
                                 <tr>
                                     <th scope="row">{{ $i }}</th>
-                                    <td>{{ $criteria->name }}</td>
-                                    <td>{{ $criteria->value }}</td>
+                                    <td data-name="name">{{ $criteria->name }}</td>
+                                    <td data-name="value">{{ $criteria->value }}</td>
+                                    <td>
+                                        <button data-id="{{ $criteria->id }}" class="btn btn-sm btn-warning edit"><i class="fas fa-edit"></i></button>
+                                        <button data-id="{{ $criteria->id }}" class="btn btn-sm btn-danger edit"><i class="fas fa-trash"></i></button>
+                                    </td>
                                 </tr>
                                 @php($i++)
                             @endforeach
@@ -94,6 +100,17 @@
             // $('[data-loading="true"]').on('click', function () {
             //     $('#loading-overlay').fadeIn();
             // });
+
+            // $('.edit').on('click', function () {
+            //     var tr = $(this).closest('tr');
+            //     let id = $(this).data('id');
+            //     var name = tr.find('td[data-name="name"]').text();
+            //     var value = tr.find('td[data-name="value"]').text();
+            //
+            //     $('input[name="id"]').val(id);
+            //     $('input[name="name"]').val(name);
+            //     $('input[name="value"]').val(value);
+            // })
         });
     </script>
 @endsection
