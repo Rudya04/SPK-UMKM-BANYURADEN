@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\UserRankingExport;
 use App\Models\Alternative;
 use App\Models\AlternativeRanking;
 use App\Models\Criteria;
@@ -18,6 +19,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RankingController extends Controller
 {
@@ -176,19 +178,85 @@ class RankingController extends Controller
         $normalization = $this->normalizationBobot($bobotArray);
 
         foreach ($currentUserRanking['current_alternatives'] as $userRanking) {
-             $response->push([
-                 'alternative_name' => $userRanking['alternative_name'],
-                 'score' => $userRanking['score'],
-                 'status' => $this->findStatusScore($userRanking['score']),
-                 'current_criterias' => $userRanking['current_criterias']
-             ]);
+            $response->push([
+                'alternative_name' => $userRanking['alternative_name'],
+                'score' => $userRanking['score'],
+                'status' => $this->findStatusScore($userRanking['score']),
+                'current_criterias' => $userRanking['current_criterias']
+            ]);
 
         }
 
         return view('ranking.detail-ranking')->with([
+            'referenceCode' => $currentUserRanking['reference_code'],
             'datas' => $response,
             'bobots' => $bobots,
             'normalizations' => $normalization,
         ]);
+    }
+
+    public function detail($id)
+    {
+        $ranking = UserRanking::with(['rankings'])->findOrFail($id);
+        return response()->json($ranking);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $data = $request->input('edit-data');
+        $rules = [
+            'alternative_id' => [
+                'required',
+                'exists:alternatives,id'
+            ],
+        ];
+        $messages = [
+            'alternative_id.required' => 'Alternative tidak boleh kosong',
+            'alternative_id.exists' => 'Alternative tidak ditemukan'
+        ];
+        foreach ($data as $key => $value) {
+            $rules["edit-data.$key"] = ['required', 'exists:sub_criterias,id'];
+            $messages["edit-data.$key.required"] = "Kolom $key wajib diisi.";
+            $messages["edit-data.$key.exists"] = "Data untuk $key tidak ditemukan di database.";
+        }
+
+        $validator = Validator::make($request->all(), $rules, $messages);
+
+        if ($validator->fails()) {
+            $firstError = $validator->errors()->first();
+            return response()->json(['errorFirst' => $firstError], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+            foreach ($data as $key => $value) {
+                Ranking::with(['criteria'])
+                    ->where('user_ranking_id', $id)
+                    ->whereHas('criteria', function ($query) use ($key) {
+                        $query->where('slug', $key);
+                    })->update(['sub_criteria_id' => $value]);
+            }
+
+            UserRanking::query()->findOrFail($id)->update(['alternative_id' => $request->input('alternative_id')]);
+
+            DB::commit();
+            return response()->json(['success' => true], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return response()->json(['success' => false], 422);
+        }
+    }
+
+    public function delete($id)
+    {
+        UserRanking::query()->findOrFail($id)->delete();
+        return response()->json(['success' => true], 200);
+    }
+
+    public function export()
+    {
+        $table = UserRanking::all();
+        return Excel::download(new UserRankingExport($table, $table, $table), 'ranking.xlsx');
     }
 }

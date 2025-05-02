@@ -21,7 +21,7 @@
                                 {{ session('success') }}
                             </div>
                         @endif
-                        <form action="{{ route("ranking.submit") }}" method="POST">
+                        <form id="form-submit" action="{{ route("ranking.submit") }}" method="POST">
                             @csrf
                             <div class="mb-2">
                                 <label for="alternative_id" class="form-label">Alternative</label>
@@ -68,10 +68,13 @@
             <div class="col-xl-8 mb-4">
                 <div class="card fade-in" style="animation-delay: 0.4s">
                     <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">List Perankingan</h5>
+                        <div>
+                            <h5 class="card-title mb-2">List Perankingan</h5>
+                            <a href="#"><span class="badge bg-secondary">Lihat Bobot</span></a>
+                        </div>
                         <form action="{{ route('ranking.calculation') }}" method="POST">
                             @csrf
-                            <button type="submit" class="btn btn-info float-left">Hitung Ranking</button>
+                            <button type="submit" class="btn btn-primary float-left text-white">Hitung Ranking</button>
                         </form>
                     </div>
                     <div class="card-body">
@@ -105,7 +108,13 @@
                                             <td>{{ $rank->sub_criteria->value }}</td>
                                             @if($j == 1)
                                                 <td rowspan="{{ $count }}">
-                                                    <button class="btn btn-sm btn-primary">Edit</button>
+                                                    <button data-id="{{ $ranking->id }}"
+                                                            class="btn btn-sm btn-warning mb-1 edit"
+                                                            data-bs-toggle="modal" data-bs-target="#edit-ranking"><i
+                                                            class="fas fa-edit"></i></button>
+                                                    <button data-id="{{ $ranking->id }}"
+                                                            class="btn btn-sm btn-danger delete"><i
+                                                            class="fas fa-trash"></i></button>
                                                 </td>
                                             @endif
                                         </tr>
@@ -123,4 +132,116 @@
 
         </div>
     </div>
+    <!-- Modal -->
+    <div class="modal fade" id="edit-ranking" tabindex="-1" aria-labelledby="edit-ranking" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit Ranking</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="edit-form">
+                    <div class="modal-body">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" id="edit-id">
+                        <div class="mb-2">
+                            <label for="alternative_id" class="form-label">Alternative</label>
+                            <select class="form-select" id="edit-alternative_id" name="alternative_id">
+                                <option value="">-- Pilih Alternative --</option>
+                                @foreach ($alternatives as $alternative)
+                                    <option
+                                        value="{{ $alternative->id }}" {{ old('alternative_id') == $alternative->id ? 'selected' : '' }}>
+                                        {{ $alternative->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        @foreach($criterias as $criteria)
+                            <div class="mb-2">
+                                <label for="{{ $criteria->slug }}" class="form-label">{{ $criteria->name }}</label>
+                                <select class="form-select edit-criteria" id="edit-criteria_id-{{ $criteria->id }}" name="edit-data[{{ $criteria->slug }}]">
+                                    <option value="">-- Pilih {{ $criteria->name }} --</option>
+                                    @foreach ($criteria->subCriterias as $sub)
+                                        <option
+                                            value="{{ $sub->id }}" {{ old($criteria->slug) == $sub->id ? 'selected' : '' }}>
+                                            {{ $sub->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('script')
+    <script>
+        $(document).ready(function () {
+            $('#form-submit').on('submit', function () {
+                $('#loading-overlay').css('display', 'flex');
+                $('#loading-overlay').fadeIn();
+            });
+
+            $('.edit').on('click', function () {
+                let id = $(this).data('id');
+                $.get('/ranking/rank/' + id, function (data) {
+                    $('#edit-id').val(data.id)
+                    $('#edit-alternative_id').val(data.alternative_id)
+                    $.each(data.rankings, function (index, item) {
+                        $('#edit-criteria_id-' + item.criteria_id).val(item.sub_criteria_id)
+                    })
+                })
+            });
+
+            $('#edit-form').submit(function (e) {
+                e.preventDefault();
+                $('#loading-overlay').css('display', 'flex');
+                $('#loading-overlay').fadeIn();
+                let id = $('#edit-id').val();
+                $.ajax({
+                    url: '/ranking/rank/' + id,
+                    method: 'POST',
+                    data : $(this).serialize(),
+                    success: function (res) {
+                        alert("Update data berhasil !");
+                        $('#edit-ranking').hide();
+                        location.reload();
+                    },
+                    error: function (res) {
+                        alert(res.responseJSON.errorFirst);
+                        $('#loading-overlay').css('display', 'none');
+                        $('#loading-overlay').fadeOut();
+                    }
+                })
+            })
+
+            $('.delete').on('click', function () {
+                if (!confirm('Yakin ingin menghapus data ini?')) return;
+                $('#loading-overlay').css('display', 'flex');
+                $('#loading-overlay').fadeIn();
+                let id = $(this).data('id');
+                $.ajax({
+                    url: '/ranking/rank/' + id + '/delete',
+                    method: 'GET',
+                    success: function (res) {
+                        alert("Hapus data berhasil !");
+                        location.reload();
+                    },
+                    error: function (res) {
+                        alert('Gagal menghapus data.');
+                        $('#loading-overlay').css('display', 'none');
+                        $('#loading-overlay').fadeOut();
+                    }
+                })
+            })
+        });
+    </script>
 @endsection

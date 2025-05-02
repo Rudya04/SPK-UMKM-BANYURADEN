@@ -45,4 +45,36 @@ class AlternativeController extends Controller
             ]);
         }
     }
+
+    public function show($id)
+    {
+        $alternative = Alternative::query()->findOrFail($id);
+        return response()->json($alternative);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(),
+            [
+                'name' => 'required',
+            ],
+            [
+                'name.required' => 'Nama wajib diisi.',
+            ]
+        );
+
+        if ($validator->fails()) {
+            $firstError = $validator->errors()->first();
+            return response()->json(['errorFirst' => $firstError], 422);
+        }
+
+        Alternative::query()->findOrFail($id)->update($request->only(['name']));
+        return response()->json(['success' => true], 200);
+    }
+
+    public function delete($id)
+    {
+        Alternative::query()->findOrFail($id)->delete();
+        return response()->json(['success' => true], 200);
+    }
 }

@@ -55,4 +55,42 @@ class CriteriaController extends Controller
             ]);
         }
     }
+
+    public function show($id)
+    {
+        $criteria = Criteria::query()->findOrFail($id);
+        return response()->json($criteria);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(),
+            [
+                'name' => 'required',
+                'value' => 'required|numeric|min:0|max:100',
+            ],
+            [
+                'name.required' => 'Nama wajib diisi.',
+                'value.min' => 'Nilai minimal harus 0.',
+                'value.max' => 'Nilai maximal harus 100.',
+                'value.required' => 'Nilai tidak boleh kosong.',
+                'value.numeric' => 'Nilai harus berupa angka.',
+            ]
+        );
+
+        if ($validator->fails()) {
+            $firstError = $validator->errors()->first();
+            return response()->json(['errorFirst' => $firstError], 422);
+        }
+
+        Criteria::query()->findOrFail($id)->update($request->only(['name', 'value']));
+
+        return response()->json(['success' => true], 200);
+    }
+
+    public function delete($id)
+    {
+        Criteria::query()->findOrFail($id)->delete();
+        return response()->json(['success' => true], 200);
+    }
 }

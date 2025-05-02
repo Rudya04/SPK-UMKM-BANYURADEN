@@ -481,25 +481,28 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('guide.index') }}" class="nav-link">
                     <i class="fas fa-warehouse"></i>
-                    <span>Laporan</span>
+                    <span>Panduan</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="{{ route('guide.index') }}" class="nav-link">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Panduan</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('user.index') }}" class="nav-link">
                     <i class="fas fa-percentage"></i>
-                    <span>User</span>
+                    <span>Pengguna</span>
                 </a>
             </li>
             <li class="nav-item">
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button class="nav-link" type="submit">
-                        <i class="fas fa-cog"></i>
-                        <span>Keluar</span>
-                    </button>
-                </form>
+                <a href="{{ route('user.index') }}" class="nav-link">
+                    <i class="fas fa-percentage"></i>
+                    <span>Perizinan</span>
+                </a>
             </li>
         </ul>
     </div>

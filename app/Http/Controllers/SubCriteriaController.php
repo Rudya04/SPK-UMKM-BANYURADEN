@@ -54,4 +54,45 @@ class SubCriteriaController extends Controller
             ]);
         }
     }
+
+    public function show($id)
+    {
+        $subCriteria = SubCriteria::query()->find($id);
+
+        return response()->json($subCriteria);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(),
+            [
+                'criteria_id' => 'required|exists:criterias,id',
+                'name' => 'required',
+                'value' => 'required|numeric|min:1|max:100',
+            ],
+            [
+                'criteria_id.required' => 'Kriteria wajib diisi.',
+                'criteria_id.exists' => 'Criteria yang dipilih tidak ada.',
+                'name.required' => 'Nama wajib diisi.',
+                'value.min' => 'Nilai minimal harus 0.',
+                'value.max' => 'Nilai maximal harus 100.',
+                'value.required' => 'Nilai tidak boleh kosong.',
+                'value.numeric' => 'Nilai harus berupa angka.',
+            ]
+        );
+
+        if ($validator->fails()) {
+            $firstError = $validator->errors()->first();
+            return response()->json(['errorFirst' => $firstError], 422);
+        }
+
+        SubCriteria::query()->findOrFail($id)->update($request->only(['criteria_id', 'name', 'value']));
+        return response()->json(['success' => true], 200);
+    }
+
+    public function delete($id)
+    {
+        SubCriteria::query()->findOrFail($id)->delete();
+        return response()->json(['success' => true], 200);
+    }
 }

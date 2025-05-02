@@ -4,7 +4,15 @@
 
 @section("content")
     <div class="main-content">
-        <h1 class="h3 mb-4">Detail Perankingan</h1>
+        <div class="row mb-2">
+            <div class="col-6">
+                <h1 class="h3 mb-4">Detail Perankingan</h1>
+            </div>
+            <div class="col-6">
+                <a href="{{ route('ranking.export', [ 'reference_code' => $referenceCode]) }}" class="btn btn-primary">Export
+                    Ranking</a>
+            </div>
+        </div>
 
         <!-- Charts Row -->
         <div class="row mb-2">
