@@ -14,9 +14,9 @@ class CriteriaSeeder extends Seeder
     public function run(): void
     {
         $criterias = [
-            ['user_id' => 1, 'name' => 'Disiplin', 'value' => 40, 'slug' => 'disiplin'],
-            ['user_id' => 1, 'name' => 'Produktivitas', 'value' => 30, 'slug' => 'produktivitas'],
-            ['user_id' => 1, 'name' => 'Kreativitas', 'value' => 30, 'slug' => 'kreativitas'],
+            ['user_id' => 1, 'name' => 'Kualitas Produk (skor)', 'value' => 2, 'slug' => 'kualitas'],
+            ['user_id' => 1, 'name' => 'Omset (juta)', 'value' => 5, 'slug' => 'omset'],
+            ['user_id' => 1, 'name' => 'Pengalaman (tahun)', 'value' => 3, 'slug' => 'pengalaman'],
         ];
 
         foreach ($criterias as $criteria) {

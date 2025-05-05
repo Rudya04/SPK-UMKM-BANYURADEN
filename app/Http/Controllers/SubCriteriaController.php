@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Criteria;
 use App\Models\SubCriteria;
+use App\Models\UserRanking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -13,8 +15,8 @@ class SubCriteriaController extends Controller
 {
     public function index()
     {
-        $subCriterias = SubCriteria::with(['criteria'])->orderByDesc('id')->get();
-        $criterias = Criteria::query()->where('user_id', Auth::id())->orderByDesc('id')->get();
+        $subCriterias = SubCriteria::with(['criteria'])->orderBy('name')->get();
+        $criterias = Criteria::query()->where('user_id', Auth::id())->orderBy('id')->get();
         return view('criteria.sub-criteria')->with([
             'subCriterias' => $subCriterias,
             'criterias' => $criterias
@@ -92,7 +94,21 @@ class SubCriteriaController extends Controller
 
     public function delete($id)
     {
-        SubCriteria::query()->findOrFail($id)->delete();
-        return response()->json(['success' => true], 200);
+        try {
+            DB::beginTransaction();
+            SubCriteria::query()->findOrFail($id)->delete();
+            $userRankings = UserRanking::with(['rankings'])->where('user_id', Auth::id())->get();
+            foreach ($userRankings as $userRanking) {
+                if (count($userRanking->rankings) <= 0) {
+                    $userRanking->delete();
+                }
+            }
+            DB::commit();
+            return response()->json(['success' => true], 200);
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            Log::error($exception->getMessage());
+            return response()->json(['error' => true], 422);
+        }
     }
 }

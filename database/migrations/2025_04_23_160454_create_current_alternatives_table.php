@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('current_alternatives', function (Blueprint $table) {
             $table->id();
             $table->foreignId('current_user_ranking_id')->constrained('current_users_rankings')->onDelete('cascade');
-            $table->foreignId('alternative_id')->constrained('alternatives');
+            $table->foreignId('alternative_id');
             $table->string('alternative_name');
             $table->double('score');
             $table->timestamps();

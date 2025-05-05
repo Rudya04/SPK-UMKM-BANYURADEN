@@ -487,9 +487,9 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('guide.index') }}" class="nav-link">
+                <a href="{{ route('ranking.flow') }}" class="nav-link">
                     <i class="fas fa-warehouse"></i>
-                    <span>Panduan</span>
+                    <span>Alur Perankingan</span>
                 </a>
             </li>
             <li class="nav-item">

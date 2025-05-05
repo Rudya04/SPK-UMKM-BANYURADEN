@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('current_criterias', function (Blueprint $table) {
             $table->id();
             $table->foreignId('current_alternative_id')->constrained('current_alternatives')->onDelete('cascade');
-            $table->foreignId('criteria_id')->constrained('criterias');
+            $table->foreignId('criteria_id');
             $table->string('criteria_name');
             $table->integer('criteria_value');
-            $table->foreignId('sub_criteria_id')->constrained('sub_criterias');
+            $table->foreignId('sub_criteria_id');
             $table->string('sub_criteria_name');
             $table->integer('sub_criteria_value');
             $table->double('score');

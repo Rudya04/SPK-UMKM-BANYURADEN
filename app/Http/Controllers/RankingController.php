@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\DataNotValidException;
 use App\Exports\UserRankingExport;
 use App\Models\Alternative;
 use App\Models\AlternativeRanking;
@@ -107,27 +108,59 @@ class RankingController extends Controller
         }
     }
 
+    public function criteria()
+    {
+        $userId = Auth::id();
+        $ids = UserRanking::query()
+            ->where('user_id', $userId)
+            ->orderBy('id')
+            ->pluck('id')->toArray();
+
+        $rankingIds = DB::table('rankings')
+            ->select('criteria_id')
+            ->whereIn('user_ranking_id', $ids)
+            ->groupBy('criteria_id')
+            ->orderBy('criteria_id')
+            ->pluck('criteria_id')->toArray();
+
+        $criterias = Criteria::query()->whereIn('id', $rankingIds)->get()->toArray();
+        $normalization = $this->normalizationBobot($criterias);
+
+        return response()->json($normalization);
+    }
+
     public function calculation()
     {
         $uuid = Str::uuid();
         try {
             DB::beginTransaction();
             $userId = Auth::id();
-            $criterias = Criteria::query()->where('user_id', $userId)
-                ->orderBy('id')->get()->toArray();
-            $rankings = UserRanking::with(
+            $userRankings = UserRanking::with(
                 [
                     'alternative',
                     'rankings.criteria',
                     'rankings.sub_criteria',
                 ]
-            )->where('user_id', $userId)->orderBy('id')->get();
-            $maxBobot = DB::table('rankings')
-                ->select('criterias.slug as name', DB::raw('MAX(sub_criterias.value) as max_bobot'))
-                ->join('criterias', 'criterias.id', '=', 'rankings.criteria_id')
-                ->join('sub_criterias', 'sub_criterias.id', '=', 'rankings.sub_criteria_id')
-                ->groupBy('rankings.criteria_id')
-                ->get();
+            )->where('user_id', $userId)->orderBy('id');
+
+            if ($userRankings->count() <= 0) {
+                throw new DataNotValidException("Data tidak sesuai, silahkan sesuaikan data anda!");
+            }
+
+            $ids = $userRankings->pluck('id')->toArray();
+            $rankingIds = DB::table('rankings')
+                ->select('criteria_id')
+                ->whereIn('user_ranking_id', $ids)
+                ->groupBy('criteria_id')
+                ->orderBy('criteria_id')
+                ->pluck('criteria_id')->toArray();
+
+            $criterias = Criteria::query()->whereIn('id', $rankingIds)->get()->toArray();
+            $subCriteriaMax = DB::table('sub_criterias')
+                ->select('criteria_id', DB::raw('MAX(value) as value_max'))
+                ->whereIn('criteria_id', $rankingIds)
+                ->groupBy('criteria_id')
+                ->orderBy('criteria_id')->get();
             $normalization = $this->normalizationBobot($criterias);
 
             $userRanking = CurrentUserRanking::query()->create([
@@ -135,12 +168,13 @@ class RankingController extends Controller
                 'reference_code' => $uuid
             ]);
 
-            foreach ($rankings as $ranking) {
+            foreach ($userRankings->get() as $ranking) {
                 $score = 0;
-                $currentCriteria = $this->calculationScore($normalization, $ranking->rankings, $maxBobot);
+                $currentCriteria = $this->calculationScore($normalization, $ranking->rankings, $subCriteriaMax);
                 foreach ($currentCriteria as $criteria) {
                     $score += $criteria['score'];
                 }
+
                 $currentAlternative = CurrentAlternative::query()->create([
                     'current_user_ranking_id' => $userRanking->id,
                     'alternative_id' => $ranking->alternative_id,
@@ -149,10 +183,16 @@ class RankingController extends Controller
                 ]);
 
                 $currentAlternative->current_criterias()->createMany($currentCriteria);
-
             }
             DB::commit();
             return redirect()->route('ranking.show', ['reference_code' => $uuid]);
+        } catch (DataNotValidException $e) {
+            DB::rollBack();
+            Log::error($e->getMessage());
+            return back()->withErrors([
+                'error' => $e->getMessage(),
+            ]);
+
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
@@ -252,6 +292,170 @@ class RankingController extends Controller
     {
         UserRanking::query()->findOrFail($id)->delete();
         return response()->json(['success' => true], 200);
+    }
+
+    public function flow()
+    {
+        $response = collect();
+        $bobots = [
+            ['id' => 1, 'name' => 'Omset (juta)', 'value' => 5, 'slug' => 'disiplin'],
+            ['id' => 2, 'name' => 'Pengalaman (tahun)', 'value' => 3, 'slug' => 'produktivitas'],
+            ['id' => 3, 'name' => 'Kualitas Produk (skor)', 'value' => 2, 'slug' => 'kreativitas'],
+        ];
+        $datas = [
+            [
+                'alternative' => [
+                    "name" => "A",
+                ],
+                'rankings' => [
+                    [
+                        'criteria_id' => 1,
+                        'sub_criteria_id' => 1,
+                        'criteria' => [
+                            'name' => "Omset (juta)",
+                            'value' => 5,
+                        ],
+                        'sub_criteria' => [
+                            'name' => "Omset (juta) (50)",
+                            'value' => 50,
+                        ]
+                    ],
+                    [
+                        'criteria_id' => 2,
+                        'sub_criteria_id' => 1,
+                        'criteria' => [
+                            'name' => "Pengalaman (tahun)",
+                            'value' => 3,
+                        ],
+                        'sub_criteria' => [
+                            'name' => "Pengalaman (tahun) (4)",
+                            'value' => 4,
+                        ]
+                    ],
+                    [
+                        'criteria_id' => 3,
+                        'sub_criteria_id' => 1,
+                        'criteria' => [
+                            'name' => "Kualitas Produk (skor)",
+                            'value' => 2,
+                        ],
+                        'sub_criteria' => [
+                            'name' => "Kualitas Produk (skor) (80)",
+                            'value' => 80,
+                        ]
+                    ]
+                ]
+            ],
+            [
+                'alternative' => [
+                    "name" => "B",
+                ],
+                'rankings' => [
+                    [
+                        'criteria_id' => 1,
+                        'sub_criteria_id' => 1,
+                        'criteria' => [
+                            'name' => "Omset (juta)",
+                            'value' => 4,
+                        ],
+                        'sub_criteria' => [
+                            'name' => "Omset (juta) (50)",
+                            'value' => 60,
+                        ]
+                    ],
+                    [
+                        'criteria_id' => 2,
+                        'sub_criteria_id' => 1,
+                        'criteria' => [
+                            'name' => "Pengalaman (tahun)",
+                            'value' => 3,
+                        ],
+                        'sub_criteria' => [
+                            'name' => "Pengalaman (tahun) (4)",
+                            'value' => 3,
+                        ]
+                    ],
+                    [
+                        'criteria_id' => 3,
+                        'sub_criteria_id' => 1,
+                        'criteria' => [
+                            'name' => "Kualitas Produk (skor)",
+                            'value' => 2,
+                        ],
+                        'sub_criteria' => [
+                            'name' => "Kualitas Produk (skor) (80)",
+                            'value' => 90,
+                        ]
+                    ]
+                ]
+            ],
+            [
+                'alternative' => [
+                    "name" => "C",
+                ],
+                'rankings' => [
+                    [
+                        'criteria_id' => 1,
+                        'sub_criteria_id' => 1,
+                        'criteria' => [
+                            'name' => "Omset (juta)",
+                            'value' => 4,
+                        ],
+                        'sub_criteria' => [
+                            'name' => "Omset (juta) (50)",
+                            'value' => 40,
+                        ]
+                    ],
+                    [
+                        'criteria_id' => 2,
+                        'sub_criteria_id' => 1,
+                        'criteria' => [
+                            'name' => "Pengalaman (tahun)",
+                            'value' => 3,
+                        ],
+                        'sub_criteria' => [
+                            'name' => "Pengalaman (tahun) (4)",
+                            'value' => 5,
+                        ]
+                    ],
+                    [
+                        'criteria_id' => 3,
+                        'sub_criteria_id' => 1,
+                        'criteria' => [
+                            'name' => "Kualitas Produk (skor)",
+                            'value' => 2,
+                        ],
+                        'sub_criteria' => [
+                            'name' => "Kualitas Produk (skor) (80)",
+                            'value' => 70,
+                        ]
+                    ]
+                ]
+            ],
+        ];
+        $maxValues = [
+            ['criteria_id' => 1, 'value_max' => 60],
+            ['criteria_id' => 2, 'value_max' => 5],
+            ['criteria_id' => 3, 'value_max' => 90],
+        ];
+        $total = array_sum(array_column($bobots, 'value'));
+        $bobotNormal = $this->normalizationBobot($bobots);
+
+        foreach ($datas as $data) {
+            $calculation = $this->calculationScore($bobotNormal, json_decode(json_encode($data['rankings'])), json_decode(json_encode($maxValues)));
+            $response->push([
+                'alternative' => $data['alternative']['name'],
+                'results' => $calculation,
+            ]);
+        }
+
+
+        return view('ranking.flow')->with([
+            'totalBobot' => $total,
+            'bobots' => $bobotNormal,
+            'results' => $response,
+            'maxValues' => $maxValues,
+        ]);
     }
 
     public function export()

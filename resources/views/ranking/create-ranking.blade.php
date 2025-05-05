@@ -48,7 +48,7 @@
                                         @foreach ($criteria->subCriterias as $sub)
                                             <option
                                                 value="{{ $sub->id }}" {{ old($criteria->slug) == $sub->id ? 'selected' : '' }}>
-                                                {{ $sub->name }}
+                                                {{ $sub->name }} ({{ $sub->value }})
                                             </option>
                                         @endforeach
                                     </select>
@@ -70,7 +70,8 @@
                     <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
                         <div>
                             <h5 class="card-title mb-2">List Perankingan</h5>
-                            <a href="#"><span class="badge bg-secondary">Lihat Bobot</span></a>
+                            <a href="#" id="find-criteria" data-bs-toggle="modal" data-bs-target="#list-criteria"><span
+                                    class="badge bg-secondary">Lihat Bobot</span></a>
                         </div>
                         <form action="{{ route('ranking.calculation') }}" method="POST">
                             @csrf
@@ -160,12 +161,13 @@
                         @foreach($criterias as $criteria)
                             <div class="mb-2">
                                 <label for="{{ $criteria->slug }}" class="form-label">{{ $criteria->name }}</label>
-                                <select class="form-select edit-criteria" id="edit-criteria_id-{{ $criteria->id }}" name="edit-data[{{ $criteria->slug }}]">
+                                <select class="form-select edit-criteria" id="edit-criteria_id-{{ $criteria->id }}"
+                                        name="edit-data[{{ $criteria->slug }}]">
                                     <option value="">-- Pilih {{ $criteria->name }} --</option>
                                     @foreach ($criteria->subCriterias as $sub)
                                         <option
                                             value="{{ $sub->id }}" {{ old($criteria->slug) == $sub->id ? 'selected' : '' }}>
-                                            {{ $sub->name }}
+                                            {{ $sub->name }} ({{ $sub->value }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -180,6 +182,33 @@
             </div>
         </div>
     </div>
+
+    <!-- Modal List -->
+    <div class="modal fade" id="list-criteria" tabindex="-1" aria-labelledby="list-criteria" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">List Criteria</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Nama</th>
+                            <th scope="col">Bobot</th>
+                            <th scope="col">Bobot Normal</th>
+                        </tr>
+                        </thead>
+                        <tbody id="criterias">
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('script')
@@ -189,6 +218,26 @@
                 $('#loading-overlay').css('display', 'flex');
                 $('#loading-overlay').fadeIn();
             });
+
+            $('#find-criteria').on('click', function (e) {
+                e.preventDefault();
+                $.get('/ranking/criteria', function (data) {
+                    let tbody = $('#criterias');
+                    tbody.empty();
+
+                    data.forEach(function (item, index) {
+                        console.log(index);
+                        let row = `<tr>
+                                    <td>${index + 1}</td>
+                                    <td>${item.name}</td>
+                                    <td>${item.value}</td>
+                                    <td>${item.bobot_normal}</td>
+                                  </tr>`;
+                        tbody.append(row);
+                    })
+
+                })
+            })
 
             $('.edit').on('click', function () {
                 let id = $(this).data('id');
@@ -209,7 +258,7 @@
                 $.ajax({
                     url: '/ranking/rank/' + id,
                     method: 'POST',
-                    data : $(this).serialize(),
+                    data: $(this).serialize(),
                     success: function (res) {
                         alert("Update data berhasil !");
                         $('#edit-ranking').hide();

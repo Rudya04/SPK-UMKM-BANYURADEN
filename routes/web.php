@@ -65,6 +65,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/ranking/create', 'save')->name('ranking.save');
         Route::post('/ranking/create', 'create')->name('ranking.submit');
         Route::post('/ranking/calculation', 'calculation')->name('ranking.calculation');
+        Route::get('/ranking/criteria', 'criteria')->name('ranking.criteria');
+        Route::get('/ranking/flow', 'flow')->name('ranking.flow');
         Route::get('/ranking/{reference_code?}', 'show')->name('ranking.show');
         Route::get('/ranking/{reference_code?}/export', 'export')->name('ranking.export');
         Route::get('/ranking/rank/{id}', 'detail')->name('ranking.detail');

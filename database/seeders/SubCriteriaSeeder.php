@@ -16,44 +16,44 @@ class SubCriteriaSeeder extends Seeder
         $subCriterias = [
             [
                 [
-                    'name' => 'Displin 1',
+                    'name' => 'Kualitas Produk 1',
                     'value' => 80,
                 ],
                 [
-                    'name' => 'Displin 2',
+                    'name' => 'Kualitas Produk 2',
                     'value' => 90,
                 ],
                 [
-                    'name' => 'Displin 3',
-                    'value' => 85,
-                ]
-            ],
-            [
-                [
-                    'name' => 'Produktivitas 1',
-                    'value' => 75,
-                ],
-                [
-                    'name' => 'Produktivitas 2',
-                    'value' => 65,
-                ],
-                [
-                    'name' => 'Produktivitas 3',
-                    'value' => 80,
-                ]
-            ],
-            [
-                [
-                    'name' => 'Kreativitas 1',
+                    'name' => 'Kualitas Produk 3',
                     'value' => 70,
+                ]
+            ],
+            [
+                [
+                    'name' => 'Omset 1',
+                    'value' => 50,
                 ],
                 [
-                    'name' => 'Kreativitas 2',
-                    'value' => 80,
-                ],
-                [
-                    'name' => 'Kreativitas 3',
+                    'name' => 'Omset 2',
                     'value' => 60,
+                ],
+                [
+                    'name' => 'Omset 3',
+                    'value' => 40,
+                ]
+            ],
+            [
+                [
+                    'name' => 'Pengalaman 1',
+                    'value' => 4,
+                ],
+                [
+                    'name' => 'Pengalaman 2',
+                    'value' => 3,
+                ],
+                [
+                    'name' => 'Pengalaman 3',
+                    'value' => 5,
                 ]
             ]
         ];
