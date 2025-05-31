@@ -34,7 +34,7 @@ class CreateUserPengusahaSeeder extends Seeder
 
             $umkm->assignRole(RoleEnum::PENGUSAHA->value);
 
-            $alternative->update(['user_id' => 1]);
+            $alternative->update(['pengusaha_id' => $umkm->id]);
         }
     }
 }
