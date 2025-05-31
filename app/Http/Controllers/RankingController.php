@@ -43,7 +43,6 @@ class RankingController extends Controller
                 ->get();
         }
 
-
         return view('ranking.ranking')->with('curentUserRanking', $curentUserRanking);
     }
 
@@ -223,7 +222,7 @@ class RankingController extends Controller
         $response = collect();
         $currentUserRanking = CurrentUserRanking::with(['current_alternatives.current_criterias'])->where('reference_code', $referenceCode)->firstOrFail()->toArray();
         $bobots = DB::table('current_criterias')
-            ->select('current_criterias.criteria_name', DB::raw('ANY_VALUE(current_criterias.criteria_value) as value'))
+            ->select('current_criterias.criteria_name', DB::raw('MAX(current_criterias.criteria_value) as value'))
             ->join('current_alternatives', 'current_alternatives.id', '=', 'current_criterias.current_alternative_id')
             ->where('current_alternatives.current_user_ranking_id', $currentUserRanking['id'])
             ->groupBy('current_criterias.criteria_name', 'current_criterias.criteria_id')
@@ -479,7 +478,7 @@ class RankingController extends Controller
         $response = collect();
         $currentUserRanking = CurrentUserRanking::with(['current_alternatives.current_criterias'])->where('reference_code', $referenceCode)->firstOrFail()->toArray();
         $bobots = DB::table('current_criterias')
-            ->select('current_criterias.criteria_name', DB::raw('ANY_VALUE(current_criterias.criteria_value) as value'))
+            ->select('current_criterias.criteria_name', DB::raw('MAX(current_criterias.criteria_value) as value'))
             ->join('current_alternatives', 'current_alternatives.id', '=', 'current_criterias.current_alternative_id')
             ->where('current_alternatives.current_user_ranking_id', $currentUserRanking['id'])
             ->groupBy('current_criterias.criteria_name', 'current_criterias.criteria_id')

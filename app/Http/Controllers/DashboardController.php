@@ -58,10 +58,14 @@ class DashboardController extends Controller
             ->orderBy('tahun', 'asc')
             ->get();
 
-        $rankingMaxs = CurrentUserRanking::query()->select('current_users_rankings.*')
+        $rankingMaxs = CurrentUserRanking::query()
+            ->select('current_users_rankings.title', 'current_users_rankings.reference_code', 'current_users_rankings.created_at')
             ->join('current_alternatives', 'current_alternatives.current_user_ranking_id', '=', 'current_users_rankings.id')
             ->selectRaw('MAX(current_alternatives.score) as max_rating')
-            ->groupBy('current_users_rankings.id')
+            ->groupBy('current_users_rankings.id',
+                'current_users_rankings.title',
+                'current_users_rankings.reference_code',
+                'current_users_rankings.created_at')
             ->orderByDesc('max_rating')
             ->limit(5)
             ->get();
