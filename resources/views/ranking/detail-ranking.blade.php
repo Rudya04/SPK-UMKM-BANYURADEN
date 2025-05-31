@@ -33,7 +33,9 @@
                                 </thead>
                                 <tbody>
                                 @php($i = 1)
+                                @php($total = 0)
                                 @foreach($normalizations as $normal)
+                                    @php($total = $total + $normal['bobot_normal'])
                                     <tr>
                                         <td>{{$i}}</td>
                                         <td>{{ $normal['criteria_name'] }}</td>
@@ -42,6 +44,10 @@
                                     </tr>
                                     @php($i++)
                                 @endforeach
+                                <tr>
+                                    <td class="text-center font-bold" colspan="3"><b>Jumlah</b></td>
+                                    <td class="font-bold"><b>{{ $total }}</b></td>
+                                </tr>
                                 <!-- Tambahkan baris lain di sini -->
                                 </tbody>
                             </table>
