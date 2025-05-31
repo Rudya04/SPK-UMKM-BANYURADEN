@@ -35,10 +35,14 @@ class RankingController extends Controller
             ->orderByDesc('id')->get();
 
         if (Auth::user()->hasRole(RoleEnum::PENGUSAHA->value)) {
-            $curentUserRanking = CurrentUserRanking::query()->select('current_users_rankings.*')
+            $curentUserRanking = CurrentUserRanking::query()
+                ->select('current_users_rankings.title', 'current_users_rankings.reference_code', 'current_users_rankings.created_at')
                 ->join('current_alternatives', 'current_alternatives.current_user_ranking_id', '=', 'current_users_rankings.id')
                 ->where('current_alternatives.pengusaha_id', Auth::id())
-                ->groupBy('current_users_rankings.id')
+                ->groupBy('current_users_rankings.id',
+                    'current_users_rankings.title',
+                    'current_users_rankings.reference_code',
+                    'current_users_rankings.created_at')
                 ->orderByDesc('current_users_rankings.id')
                 ->get();
         }
