@@ -32,6 +32,7 @@
                                     <td>{{ $userRanking->title }}</td>
                                     <td>
                                         <a href="{{ route('ranking.show', ['reference_code' => $userRanking->reference_code]) }}"><span class="badge bg-primary">Detail</span></a>
+                                        <a href="{{ route('ranking.export', ['reference_code' => $userRanking->reference_code]) }}"><span class="badge bg-info">Export</span></a>
                                     </td>
                                 </tr>
                                 @php($i++)

@@ -458,50 +458,44 @@
             </li>
             <li class="nav-item">
                 <a href="{{ route('criteria') }}" class="nav-link">
-                    <i class="fas fa-shopping-cart"></i>
+                    <i class="bi bi-app-indicator"></i>
                     <span>Kriteria</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('sub-criteria') }}" class="nav-link">
-                    <i class="fas fa-box"></i>
+                    <i class="bi bi-back"></i>
                     <span>Sub Kriteria</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('alternative') }}" class="nav-link">
-                    <i class="fas fa-users"></i>
+                    <i class="bi bi-person-fill-down"></i>
                     <span>Alternatif</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('ranking') }}" class="nav-link">
-                    <i class="fas fa-chart-bar"></i>
+                    <i class="bi bi-calculator"></i>
                     <span>Perangkingan</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('guide.index') }}" class="nav-link">
-                    <i class="fas fa-warehouse"></i>
+                    <i class="bi bi-journal-bookmark"></i>
                     <span>Panduan</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('ranking.flow') }}" class="nav-link">
-                    <i class="fas fa-warehouse"></i>
+                    <i class="bi bi-stack-overflow"></i>
                     <span>Alur Perankingan</span>
                 </a>
             </li>
             <li class="nav-item">
                 <a href="{{ route('user.index') }}" class="nav-link">
-                    <i class="fas fa-percentage"></i>
+                    <i class="bi bi-people-fill"></i>
                     <span>Pengguna</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('user.index') }}" class="nav-link">
-                    <i class="fas fa-percentage"></i>
-                    <span>Perizinan</span>
                 </a>
             </li>
         </ul>
