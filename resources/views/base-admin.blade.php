@@ -450,6 +450,7 @@
 
     <div class="sidebar-nav">
         <ul class="nav flex-column">
+            @role('admin')
             <li class="nav-item">
                 <a href="{{ route('dashboard') }}" class="nav-link active">
                     <i class="fas fa-tachometer-alt"></i>
@@ -474,6 +475,7 @@
                     <span>Alternatif</span>
                 </a>
             </li>
+            @endrole
             <li class="nav-item">
                 <a href="{{ route('ranking') }}" class="nav-link">
                     <i class="bi bi-calculator"></i>
@@ -486,6 +488,7 @@
                     <span>Panduan</span>
                 </a>
             </li>
+            @role('admin')
             <li class="nav-item">
                 <a href="{{ route('ranking.flow') }}" class="nav-link">
                     <i class="bi bi-stack-overflow"></i>
@@ -498,6 +501,7 @@
                     <span>Pengguna</span>
                 </a>
             </li>
+            @endrole
         </ul>
     </div>
 </nav>
@@ -520,18 +524,10 @@
             <!-- Profile Dropdown -->
             <div class="dropdown">
                 <button class="profile-btn" data-bs-toggle="dropdown">
-                    <img src="https://cdnjs.cloudflare.com/ajax/libs/placeholder.com/100x100/3498db/ffffff&text=Admin"
-                         alt="Admin" class="profile-img">
-                    <span>Admin</span>
+                    <span>{{ \Illuminate\Support\Facades\Auth::user()->name }}</span>
                     <i class="fas fa-chevron-down small"></i>
                 </button>
                 <ul class="dropdown-menu dropdown-menu-end">
-                    <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i> Profil</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="fas fa-envelope me-2"></i> Inbox</a></li>
-                    <li><a class="dropdown-item" href="#"><i class="fas fa-tasks me-2"></i> Task</a></li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
                     <li>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf

@@ -6,9 +6,11 @@
     <div class="main-content">
         <div class="d-flex justify-content-between">
             <h1 class="h3 mb-4">Detail Perankingan</h1>
+            @role('admin')
             <section>
                 <a href="{{ route('ranking.export', [ 'reference_code' => $referenceCode]) }}" class="btn btn-primary">Export</a>
             </section>
+            @endrole
         </div>
 
         <!-- Charts Row -->

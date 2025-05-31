@@ -7,6 +7,7 @@ use App\Models\CurrentUserRanking;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 
@@ -14,6 +15,9 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        if (Auth::user()->hasRole(RoleEnum::PENGUSAHA->value)) {
+            return redirect()->route('ranking');
+        }
         $now = Carbon::now()->format('Y-m-d');
         $kategoriLengkap = ['Sangat Layak', 'Layak', 'Cukup Layak', 'Tidak Layak'];
 

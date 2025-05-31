@@ -11,7 +11,9 @@
                 <div class="card fade-in" style="animation-delay: 0.4s">
                     <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">History Ranking</h5>
+                        @role('admin')
                         <a href="{{ route('ranking.save') }}" class="btn btn-primary float-left">Buat Ranking</a>
+                        @endrole
                     </div>
                     <div class="card-body">
                         <table class="table">
@@ -31,8 +33,12 @@
                                     <td>{{ $userRanking->created_at }}</td>
                                     <td>{{ $userRanking->title }}</td>
                                     <td>
-                                        <a href="{{ route('ranking.show', ['reference_code' => $userRanking->reference_code]) }}"><span class="badge bg-primary">Detail</span></a>
-                                        <a href="{{ route('ranking.export', ['reference_code' => $userRanking->reference_code]) }}"><span class="badge bg-info">Export</span></a>
+                                        <a href="{{ route('ranking.show', ['reference_code' => $userRanking->reference_code]) }}"><span
+                                                class="badge bg-primary">Detail</span></a>
+                                        @role('admin')
+                                        <a href="{{ route('ranking.export', ['reference_code' => $userRanking->reference_code]) }}"><span
+                                                class="badge bg-info">Export</span></a>
+                                        @endrole
                                     </td>
                                 </tr>
                                 @php($i++)

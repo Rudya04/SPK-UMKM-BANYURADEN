@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enum\RoleEnum;
 use App\Exceptions\DataNotValidException;
 use App\Exports\RankingExport;
 use App\Exports\UserRankingExport;
@@ -22,6 +23,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
+use Spatie\Permission\Models\Role;
 
 class RankingController extends Controller
 {
@@ -31,6 +33,17 @@ class RankingController extends Controller
     {
         $curentUserRanking = CurrentUserRanking::query()->where('user_id', Auth::id())
             ->orderByDesc('id')->get();
+
+        if (Auth::user()->hasRole(RoleEnum::PENGUSAHA->value)) {
+            $curentUserRanking = CurrentUserRanking::query()->select('current_users_rankings.*')
+                ->join('current_alternatives', 'current_alternatives.current_user_ranking_id', '=', 'current_users_rankings.id')
+                ->where('current_alternatives.pengusaha_id', Auth::id())
+                ->groupBy('current_users_rankings.id')
+                ->orderByDesc('current_users_rankings.id')
+                ->get();
+        }
+
+
         return view('ranking.ranking')->with('curentUserRanking', $curentUserRanking);
     }
 
@@ -181,6 +194,7 @@ class RankingController extends Controller
                     'current_user_ranking_id' => $userRanking->id,
                     'alternative_id' => $ranking->alternative_id,
                     'alternative_name' => $ranking->alternative->name,
+                    'pengguna_id' => $ranking->alternative->pengguna_id,
                     'score' => $score,
                 ]);
 

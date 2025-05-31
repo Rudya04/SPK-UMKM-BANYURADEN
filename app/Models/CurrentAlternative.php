@@ -11,6 +11,11 @@ class CurrentAlternative extends Model
 {
     protected $guarded = ['id'];
 
+    public function alternative(): BelongsTo
+    {
+        return $this->belongsTo(Alternative::class, 'alternative_id', 'id');
+    }
+
     public function current_criterias(): HasMany
     {
         return $this->hasMany(CurrentCriteria::class, 'current_alternative_id', 'id')->orderBy('criteria_id');
