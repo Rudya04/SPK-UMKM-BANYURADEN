@@ -426,6 +426,39 @@
             overflow-x: auto;
         }
     </style>
+      <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .card {
+      box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
+      border-radius: 8px;
+    }
+
+    .section-title {
+      font-weight: 600;
+      margin-top: 2rem;
+      color: #0d47a1;
+    }
+
+    .sub-title {
+      font-weight: 500;
+      margin-top: 1rem;
+    }
+
+    ul {
+      padding-left: 1.2rem;
+    }
+
+    .note {
+      background-color: #e3f2fd;
+      padding: 1rem;
+      border-left: 5px solid #0d47a1;
+      border-radius: 4px;
+      margin-top: 1rem;
+    }
+  </style>
 </head>
 <body>
 
