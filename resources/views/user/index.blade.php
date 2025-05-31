@@ -17,8 +17,9 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Nama</th>
+                                <th scope="col">Email</th>
+                                <th scope="col">Password</th>
                                 <th scope="col">Role</th>
-                                <th scope="col">Aksi</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -27,16 +28,13 @@
                                 <tr>
                                     <th scope="row">{{ $i }}</th>
                                     <td>{{ $user->name }}</td>
-                                    <td>{{ $user->roles->first()->name }}</td>
+                                    <td>{{ $user->email }}</td>
                                     <td>
                                         @if(!$user->is_admin)
-                                            <button data-id="{{ $user->id }}" class="btn btn-sm btn-warning edit"
-                                                    data-bs-toggle="modal" data-bs-target="#edit-alternative"><i
-                                                    class="fas fa-edit"></i></button>
-                                            <button data-id="{{ $user->id }}" class="btn btn-sm btn-danger delete"><i
-                                                    class="fas fa-trash"></i></button>
+                                            {{ $user->password_text }}
                                         @endif
                                     </td>
+                                    <td>{{ $user->roles->first()->name }}</td>
                                 </tr>
                                 @php($i++)
                             @endforeach

@@ -32,6 +32,15 @@
                                     </div>
                                 @endif
                             </div>
+                            <div class="mb-2">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" value="{{ old("email") }}">
+                                @if($errors->has('email'))
+                                    <div id="email" class="form-text text-danger">
+                                        {{ $errors->first('email') }}
+                                    </div>
+                                @endif
+                            </div>
                             <button type="submit" class="btn btn-primary">Tambah</button>
                         </form>
                     </div>
@@ -49,6 +58,7 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Nama</th>
+                                <th scope="col">Email</th>
                                 <th scope="col">Aksi</th>
                             </tr>
                             </thead>
@@ -58,6 +68,7 @@
                                 <tr>
                                     <th scope="row">{{ $i }}</th>
                                     <td>{{ $alternative->name }}</td>
+                                    <td>{{ $alternative->pengusaha->email }}</td>
                                     <td>
                                         <button data-id="{{ $alternative->id }}" class="btn btn-sm btn-warning edit"
                                                 data-bs-toggle="modal" data-bs-target="#edit-alternative"><i
@@ -144,7 +155,7 @@
             })
 
             $('.delete').on('click', function () {
-                if (!confirm('Yakin ingin menghapus data ini?')) return;
+                if (!confirm('Yakin ingin menghapus data ini, Pengguna akan ikut terhapus ?')) return;
                 $('#loading-overlay').css('display', 'flex');
                 $('#loading-overlay').fadeIn();
                 let id = $(this).data('id');

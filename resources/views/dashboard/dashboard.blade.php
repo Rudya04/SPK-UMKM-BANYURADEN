@@ -13,11 +13,9 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="card-title mb-1">Total Penjualan</h6>
-                                <h3 class="card-text mb-0">Rp 45.8M</h3>
-                                <small class="opacity-75"><i class="fas fa-arrow-up"></i> +12% dari bulan lalu</small>
+                                <h6 class="card-title mb-1">Total Perhitungan Ranking</h6>
+                                <h3 class="card-text mb-0">{{ $data['totalRanking'] }}</h3>
                             </div>
-                            <i class="fas fa-chart-line"></i>
                         </div>
                     </div>
                 </div>
@@ -28,11 +26,9 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="card-title mb-1">Pesanan Hari Ini</h6>
-                                <h3 class="card-text mb-0">156</h3>
-                                <small class="opacity-75"><i class="fas fa-arrow-up"></i> +8% dari kemarin</small>
+                                <h6 class="card-title mb-1">Jumlah Perhitungan Hari Ini</h6>
+                                <h3 class="card-text mb-0">{{ $data['totalRankingToday'] }}</h3>
                             </div>
-                            <i class="fas fa-shopping-bag"></i>
                         </div>
                     </div>
                 </div>
@@ -43,11 +39,9 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="card-title mb-1">Produk Terjual</h6>
-                                <h3 class="card-text mb-0">1,234</h3>
-                                <small class="opacity-75"><i class="fas fa-arrow-up"></i> +15% dari bulan lalu</small>
+                                <h6 class="card-title mb-1">Jumlah UMKM</h6>
+                                <h3 class="card-text mb-0">{{ $data['totalUmkm'] }}</h3>
                             </div>
-                            <i class="fas fa-box-open"></i>
                         </div>
                     </div>
                 </div>
@@ -58,11 +52,9 @@
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
-                                <h6 class="card-title mb-1">Pelanggan Baru</h6>
-                                <h3 class="card-text mb-0">48</h3>
-                                <small class="opacity-75"><i class="fas fa-arrow-up"></i> +20% dari bulan lalu</small>
+                                <h6 class="card-title mb-1">Total Pengguna</h6>
+                                <h3 class="card-text mb-0">{{ $data['totalUser'] }}</h3>
                             </div>
-                            <i class="fas fa-users"></i>
                         </div>
                     </div>
                 </div>
@@ -73,30 +65,18 @@
         <div class="row mb-4">
             <div class="col-xl-8 mb-4">
                 <div class="card fade-in" style="animation-delay: 0.4s">
-                    <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Analisis Penjualan</h5>
-                        <div class="btn-group">
-                            <button class="btn btn-outline-secondary btn-sm" onclick="updateChart('daily')">Harian</button>
-                            <button class="btn btn-outline-secondary btn-sm active" onclick="updateChart('weekly')">Mingguan</button>
-                            <button class="btn btn-outline-secondary btn-sm" onclick="updateChart('monthly')">Bulanan</button>
-                        </div>
-                    </div>
                     <div class="card-body">
                         <div class="chart-container">
-                            <canvas id="salesChart"></canvas>
+                            <canvas id="myChart"></canvas>
                         </div>
                     </div>
                 </div>
             </div>
-
             <div class="col-xl-4 mb-4">
-                <div class="card fade-in" style="animation-delay: 0.5s">
-                    <div class="card-header bg-white border-0">
-                        <h5 class="card-title mb-0">Produk Terlaris</h5>
-                    </div>
+                <div class="card fade-in" style="animation-delay: 0.4s">
                     <div class="card-body">
                         <div class="chart-container">
-                            <canvas id="topProductsChart"></canvas>
+                            <canvas id="myPie"></canvas>
                         </div>
                     </div>
                 </div>
@@ -105,149 +85,124 @@
 
         <!-- Recent Orders & Activity -->
         <div class="row">
-            <div class="col-xl-8 mb-4">
+            <div class="col-xl-12 mb-4">
                 <div class="card fade-in" style="animation-delay: 0.6s">
                     <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">Pesanan Terbaru</h5>
-                        <button class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus me-2"></i>Tambah Pesanan
-                        </button>
+                        <h5 class="card-title mb-0">Ranking dengan score terbesar</h5>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
                             <table class="table table-hover">
                                 <thead>
                                 <tr>
-                                    <th>No. Faktur</th>
-                                    <th>Pelanggan</th>
                                     <th>Tanggal</th>
-                                    <th>Total</th>
-                                    <th>Status</th>
+                                    <th>Title</th>
+                                    <th>Ranking</th>
                                     <th>Aksi</th>
                                 </tr>
                                 </thead>
                                 <tbody>
-                                <tr>
-                                    <td>#INV-2541</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="https://cdnjs.cloudflare.com/ajax/libs/placeholder.com/32x32/e74c3c/ffffff&text=DS"
-                                                 class="rounded-circle me-2" width="32" height="32" alt="DS">
-                                            <div>
-                                                <div class="fw-bold">Dewi Sartika</div>
-                                                <small class="text-muted">dewi.s@email.com</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>17 Apr 2025, 10:24</td>
-                                    <td>Rp 1.250.000</td>
-                                    <td><span class="badge bg-success">Selesai</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>#INV-2540</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="https://cdnjs.cloudflare.com/ajax/libs/placeholder.com/32x32/f39c12/ffffff&text=AP"
-                                                 class="rounded-circle me-2" width="32" height="32" alt="AP">
-                                            <div>
-                                                <div class="fw-bold">Andi Pratama</div>
-                                                <small class="text-muted">andi.p@email.com</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>17 Apr 2025, 09:15</td>
-                                    <td>Rp 875.000</td>
-                                    <td><span class="badge bg-warning">Proses</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>#INV-2539</td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <img src="https://cdnjs.cloudflare.com/ajax/libs/placeholder.com/32x32/2ecc71/ffffff&text=RS"
-                                                 class="rounded-circle me-2" width="32" height="32" alt="RS">
-                                            <div>
-                                                <div class="fw-bold">Rini Setiawati</div>
-                                                <small class="text-muted">rini.s@email.com</small>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>16 Apr 2025, 16:47</td>
-                                    <td>Rp 2.150.000</td>
-                                    <td><span class="badge bg-success">Selesai</span></td>
-                                    <td>
-                                        <button class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></button>
-                                        <button class="btn btn-sm btn-warning"><i class="fas fa-edit"></i></button>
-                                        <button class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
-                                    </td>
-                                </tr>
+                                @foreach($data['rankingMaxs'] as $ranking)
+                                    <tr>
+                                        <td>{{ $ranking->created_at }}</td>
+                                        <td>{{ $ranking->title }}</td>
+                                        <td>{{ $ranking->max_rating }}</td>
+                                        <td>
+                                            <a href="{{ route('ranking.show', ['reference_code' => $ranking->reference_code]) }}" class="btn btn-sm btn-primary"><i class="fas fa-eye"></i></a>
+                                        </td>
+                                    </tr>
+                                @endforeach
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="col-xl-4 mb-4">
-                <div class="card fade-in" style="animation-delay: 0.7s">
-                    <div class="card-header bg-white border-0">
-                        <h5 class="card-title mb-0">Aktivitas Terkini</h5>
-                    </div>
-                    <div class="card-body">
-                        <ul class="activity-feed">
-                            <li class="activity-item">
-                                <div class="activity-icon success">
-                                    <i class="fas fa-check"></i>
-                                </div>
-                                <div>
-                                    <div class="fw-bold">Pesanan Selesai</div>
-                                    <small class="text-muted">Pesanan #INV-2541 telah diselesaikan</small>
-                                    <div class="small text-muted mt-1">5 menit yang lalu</div>
-                                </div>
-                            </li>
-                            <li class="activity-item">
-                                <div class="activity-icon warning">
-                                    <i class="fas fa-exclamation"></i>
-                                </div>
-                                <div>
-                                    <div class="fw-bold">Stok Menipis</div>
-                                    <small class="text-muted">Laptop Gaming X450 tinggal 3 unit</small>
-                                    <div class="small text-muted mt-1">15 menit yang lalu</div>
-                                </div>
-                            </li>
-                            <li class="activity-item">
-                                <div class="activity-icon primary">
-                                    <i class="fas fa-user-plus"></i>
-                                </div>
-                                <div>
-                                    <div class="fw-bold">Pelanggan Baru</div>
-                                    <small class="text-muted">Eva Andriani bergabung sebagai pelanggan</small>
-                                    <div class="small text-muted mt-1">1 jam yang lalu</div>
-                                </div>
-                            </li>
-                            <li class="activity-item">
-                                <div class="activity-icon danger">
-                                    <i class="fas fa-times"></i>
-                                </div>
-                                <div>
-                                    <div class="fw-bold">Pesanan Dibatalkan</div>
-                                    <small class="text-muted">Pesanan #INV-2537 dibatalkan oleh pelanggan</small>
-                                    <div class="small text-muted mt-1">2 jam yang lalu</div>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
+@endsection
+@section('script')
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctx = document.getElementById('myChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: @json($data['responseYear']['years']),
+                datasets: [
+                    {
+                        label: 'Sangat Layak',
+                        data: @json($data['responseYear']['sangat_layak']),
+                        backgroundColor: 'rgba(75, 192, 192, 0.7)'
+                    },
+                    {
+                        label: 'Layak',
+                        data: @json($data['responseYear']['layak']),
+                        backgroundColor: 'rgba(255, 99, 132, 0.7)'
+                    },
+                    {
+                        label: 'Cukup Layak',
+                        data: @json($data['responseYear']['cukup_layak']),
+                        backgroundColor: 'rgba(255, 206, 86, 0.7)'
+                    },
+                    {
+                        label: 'Tidak Layak',
+                        data: @json($data['responseYear']['tidak_layak']),
+                        backgroundColor: 'rgba(92,86,255,0.7)'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Perbandingan Jumlah Kelayakan Per Tahun'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+    <script>
+        const pieCtx = document.getElementById('myPie');
+
+        new Chart(pieCtx, {
+            type: 'doughnut',
+            data: {
+                labels: @json($data['responseCriteria']['criteria']),
+                datasets: [{
+                    label: 'Status Kelayakan',
+                    data: @json($data['responseCriteria']['total']),
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)',
+                        'rgba(255, 99, 132, 0.7)',
+                        'rgba(99,255,242,0.7)',
+                        'rgba(120,99,255,0.7)',
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(99,255,242,0.7)',
+                        'rgba(120,99,255,0.7)',
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Total Keseluruhan Status Kelayakan UMKM'
+                    }
+                }
+            }
+        });
+    </script>
 @endsection

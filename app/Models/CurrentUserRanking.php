@@ -15,6 +15,7 @@ class CurrentUserRanking extends Model
     protected $fillable = [
         'user_id',
         'reference_code',
+        'title',
     ];
 
     public function current_alternatives(): HasMany

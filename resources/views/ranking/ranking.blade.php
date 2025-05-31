@@ -19,6 +19,7 @@
                             <tr>
                                 <th scope="col">#</th>
                                 <th scope="col">Tanggal</th>
+                                <th scope="col">Title</th>
                                 <th scope="col">Aksi</th>
                             </tr>
                             </thead>
@@ -28,6 +29,7 @@
                                 <tr>
                                     <th scope="row">{{ $i }}</th>
                                     <td>{{ $userRanking->created_at }}</td>
+                                    <td>{{ $userRanking->title }}</td>
                                     <td>
                                         <a href="{{ route('ranking.show', ['reference_code' => $userRanking->reference_code]) }}"><span class="badge bg-primary">Detail</span></a>
                                     </td>

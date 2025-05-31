@@ -36,7 +36,7 @@ class RankingController extends Controller
     public function save()
     {
         $userId = Auth::id();
-        $alternatives = Alternative::query()->where('user_id', $userId)->orderByDesc('id')->get();
+        $alternatives = Alternative::with(['pengusaha'])->where('user_id', $userId)->orderByDesc('id')->get();
         $criterias = Criteria::with(['subCriterias'])->where('user_id', $userId)->get();
         $rankings = UserRanking::query()->where('user_id', $userId)->get();
         return view('ranking.create-ranking')->with([
@@ -129,7 +129,7 @@ class RankingController extends Controller
         return response()->json($normalization);
     }
 
-    public function calculation()
+    public function calculation(Request $request)
     {
         $uuid = Str::uuid();
         try {
@@ -165,7 +165,8 @@ class RankingController extends Controller
 
             $userRanking = CurrentUserRanking::query()->create([
                 'user_id' => $userId,
-                'reference_code' => $uuid
+                'reference_code' => $uuid,
+                'title' => $request->input('title')
             ]);
 
             foreach ($userRankings->get() as $ranking) {

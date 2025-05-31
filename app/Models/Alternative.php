@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Alternative extends Model
@@ -12,5 +13,11 @@ class Alternative extends Model
     protected $fillable = [
         'user_id',
         'name',
+        'pengusaha_id'
     ];
+
+    public function pengusaha(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'pengusaha_id', 'id');
+    }
 }

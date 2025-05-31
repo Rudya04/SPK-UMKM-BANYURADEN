@@ -30,7 +30,7 @@
                                     @foreach ($alternatives as $alternative)
                                         <option
                                             value="{{ $alternative->id }}" {{ old('alternative_id') == $alternative->id ? 'selected' : '' }}>
-                                            {{ $alternative->name }}
+                                            {{ $alternative->name }} ({{ $alternative->pengusaha->email }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -75,6 +75,10 @@
                         </div>
                         <form action="{{ route('ranking.calculation') }}" method="POST">
                             @csrf
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Judul Perhitungan</label>
+                                <input type="text" class="form-control" id="title" name="title" placeholder="Example:Bantuan desa" required>
+                            </div>
                             <button type="submit" class="btn btn-primary float-left text-white">Hitung Ranking</button>
                         </form>
                     </div>
