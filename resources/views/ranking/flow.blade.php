@@ -6,7 +6,7 @@
     <div class="container">
         <div class="card">
             <div class="card-header">
-                <b>Proses Perhitungan Perankingan & Perbandingan Bobot Berbeda</b>
+                <b>Proses Perhitungan Perankingan</b>
             </div>
             <div class="card-body">
                 <p>Berikut penjelasan singkat mengenai alur perankingan algoritma <b>SMART (Simple Multi-Attribute

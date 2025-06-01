@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPK Kelayakan Usaha UMKM - Login</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('img/logo.jpg') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
 
@@ -61,7 +62,7 @@
         <div class="col-md-6 col-lg-5">
             <div class="card p-4">
                 <div class="card-body text-center">
-                    <img src="umkmbny.png" alt="Logo" class="logo"> <!-- Ganti 'logo.png' dengan link/logo kamu -->
+                    <img src="{{ asset('img/logo.jpg') }}" alt="Logo" class="logo">
                     <h3 class="mb-4">Sistem Pendukung Keputusan</h3>
                     <h5 class="mb-4">Kelayakan Usaha UMKM BANYURADEN<br> <small class="text-muted">Metode SMART</small></h5>
                     @error("email")

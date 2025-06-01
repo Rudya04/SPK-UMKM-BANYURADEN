@@ -4,7 +4,7 @@
 
 @section("content")
     <div class="main-content">
-        <h1 class="h3 mb-4">Dashboard Overview</h1>
+        <h1 class="h3 mb-4">Dashboard</h1>
 
         <!-- Dashboard Stats -->
         <div class="row mb-4">

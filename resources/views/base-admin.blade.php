@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title') - UMKM Banyuraden</title>
+    <link rel="icon" type="image/x-icon" href="{{ asset('img/logo.jpg') }}">
 
     <!-- Bootstrap CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -476,60 +477,60 @@
 <nav class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <div class="sidebar-logo">
-            <i class="fas fa-store"></i>
+            <img src="{{ asset('img/logo.jpg') }}" alt="Logo" width="50">
         </div>
-        <span class="sidebar-text fw-bold h5 mb-0">SalesApp</span>
+        <span class="sidebar-text fw-bold h5 mb-0">Sistem Pendukung Keputusan</span>
     </div>
 
     <div class="sidebar-nav">
         <ul class="nav flex-column">
             @role('admin')
             <li class="nav-item">
-                <a href="{{ route('dashboard') }}" class="nav-link active">
+                <a href="{{ route('dashboard') }}" class="nav-link {{ request()->path() === '/' ? 'active' : '' }}">
                     <i class="fas fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('criteria') }}" class="nav-link">
+                <a href="{{ route('criteria') }}" class="nav-link {{ request()->is('criteria*') ? 'active' : '' }}">
                     <i class="bi bi-app-indicator"></i>
                     <span>Kriteria</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('sub-criteria') }}" class="nav-link">
+                <a href="{{ route('sub-criteria') }}" class="nav-link {{ request()->is('sub-criteria*') ? 'active' : '' }}">
                     <i class="bi bi-back"></i>
                     <span>Sub Kriteria</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('alternative') }}" class="nav-link">
+                <a href="{{ route('alternative') }}" class="nav-link {{ request()->is('alternative*') ? 'active' : '' }}">
                     <i class="bi bi-person-fill-down"></i>
                     <span>Alternatif</span>
                 </a>
             </li>
             @endrole
             <li class="nav-item">
-                <a href="{{ route('ranking') }}" class="nav-link">
+                <a href="{{ route('ranking') }}" class="nav-link {{ request()->is('ranking*') ? 'active' : '' }}">
                     <i class="bi bi-calculator"></i>
                     <span>Perangkingan</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('guide.index') }}" class="nav-link">
+                <a href="{{ route('guide.index') }}" class="nav-link {{ request()->is('guide*') ? 'active' : '' }}">
                     <i class="bi bi-journal-bookmark"></i>
                     <span>Panduan</span>
                 </a>
             </li>
             @role('admin')
             <li class="nav-item">
-                <a href="{{ route('ranking.flow') }}" class="nav-link">
+                <a href="{{ route('ranking.flow') }}" class="nav-link {{ request()->is('flow*') ? 'active' : '' }}">
                     <i class="bi bi-stack-overflow"></i>
                     <span>Alur Perankingan</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('user.index') }}" class="nav-link">
+                <a href="{{ route('user.index') }}" class="nav-link {{ request()->is('user*') ? 'active' : '' }}">
                     <i class="bi bi-people-fill"></i>
                     <span>Pengguna</span>
                 </a>
