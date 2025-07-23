@@ -15,7 +15,7 @@ class UserRanking extends Model
     protected $fillable = [
         'user_id',
         'alternative_id',
-        'reference_code',
+        'form_id',
     ];
 
     public function alternative(): BelongsTo

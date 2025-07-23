@@ -108,6 +108,7 @@
                                         <th>{{ $bobot->criteria_name }}</th>
                                     @endforeach
                                     <th>Score</th>
+                                    <th>Score Akhir</th>
                                     <th>Status</th>
                                 </tr>
                                 </thead>
@@ -121,6 +122,7 @@
                                             <td>{{ $criteria['score'] }}</td>
                                         @endforeach
                                         <td>{{ $data['score'] }}</td>
+                                        <td>{{ $data['score_akhir'] }}</td>
                                         <th>{{ $data['status'] }}</th>
                                     </tr>
                                     @php($i++)

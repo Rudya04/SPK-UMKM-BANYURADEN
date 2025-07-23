@@ -24,6 +24,10 @@ class AuthController extends Controller
             if (Auth::attempt($credential)) {
                 $request->session()->regenerate();
                 return redirect()->intended('/');
+            }else{
+                return back()->withErrors([
+                    'email' => 'Email atau password salah.',
+                ]);
             }
         }catch (\Exception $exception) {
             Log::error($exception->getMessage());

@@ -11,11 +11,13 @@ use App\Models\AlternativeRanking;
 use App\Models\Criteria;
 use App\Models\CurrentAlternative;
 use App\Models\CurrentUserRanking;
+use App\Models\Form;
 use App\Models\Ranking;
 use App\Models\SubCriteria;
 use App\Models\User;
 use App\Models\UserRanking;
 use App\Traits\CalculationTrait;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -50,35 +52,55 @@ class RankingController extends Controller
         return view('ranking.ranking')->with('curentUserRanking', $curentUserRanking);
     }
 
-    public function save()
+    public function save($reference_code)
     {
         $userId = Auth::id();
-        $alternatives = Alternative::with(['pengusaha'])->where('user_id', $userId)->orderByDesc('id')->get();
-        $criterias = Criteria::with(['subCriterias'])->where('user_id', $userId)->get();
-        $rankings = UserRanking::query()->where('user_id', $userId)->get();
+        $form = Form::with(['user_ranking'])->where('code', $reference_code)->firstOrFail();
+        $alternative = Alternative::with(['pengusaha'])->where('pengusaha_id', $userId)->firstOrFail();
+        $criterias = Criteria::with(['subCriterias'])->get();
+        $rankings = UserRanking::query()
+            ->where('form_id', $form->id)
+            ->where('alternative_id', $alternative->id)
+            ->get();
+
         return view('ranking.create-ranking')->with([
-            'alternatives' => $alternatives,
+            'form' => $form,
+            'alternative' => $alternative,
             'criterias' => $criterias,
             'rankings' => $rankings,
         ]);
+    }
 
+    public function showDetail($reference_code)
+    {
+        $form = Form::with(['user_rankings.rankings'])->where('code', $reference_code)->firstOrFail();
+
+        return view('ranking.show-ranking')->with([
+            'form' => $form,
+        ]);
     }
 
     public function create(Request $request)
     {
-
         $data = $request->input('data');
         $rules = [
             'alternative_id' => [
                 'required',
                 'exists:alternatives,id'
             ],
+            'form_id' => [
+                'required',
+                'exists:forms,id'
+            ],
         ];
         $messages = [
             'alternative_id.required' => 'Alternative tidak boleh kosong',
-            'alternative_id.exists' => 'Alternative tidak ditemukan'
+            'alternative_id.exists' => 'Alternative tidak ditemukan',
+            'form_id.required' => 'Form tidak boleh kosong',
+            'form_id.exists' => 'Form tidak ditemukan'
         ];
         foreach ($data as $key => $value) {
+            if (in_array($key, ['alternative_id', 'form_id'])) continue;
             $rules["data.$key"] = ['required', 'exists:sub_criterias,id'];
             $messages["data.$key.required"] = "Kolom $key wajib diisi.";
             $messages["data.$key.exists"] = "Data untuk $key tidak ditemukan di database.";
@@ -92,16 +114,26 @@ class RankingController extends Controller
 
         try {
             DB::beginTransaction();
+            $dateNow = Carbon::now('Asia/Jakarta')->format('Y-m-d');
             $userId = Auth::id();
             $subCriteriaIds = [];
             foreach ($data as $key => $value) {
                 $subCriteriaIds[] = $value;
             }
 
+            $form = Form::query()->findOrFail($request->input('form_id'));
+
+            if ($dateNow > $form->expired_date) {
+                return back()->withErrors([
+                    'error' => 'Tanggal melebihi batas pengisian.',
+                ]);
+            }
+
             $subCriterias = SubCriteria::query()->whereIn('id', $subCriteriaIds)->get();
 
             $userRanking = UserRanking::query()->create([
                 'user_id' => $userId,
+                'form_id' => $request->input('form_id'),
                 'alternative_id' => $request->input('alternative_id')
             ]);
 
@@ -115,7 +147,7 @@ class RankingController extends Controller
 
             $userRanking->rankings()->createMany($rankigs);
             DB::commit();
-            return redirect()->route('ranking.save')->with('success', 'Ranking berhasil ditambahkan');
+            return redirect()->route('ranking.save', ['reference_code' => $form->code])->with('success', 'Ranking berhasil ditambahkan');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error($e->getMessage());
@@ -129,7 +161,6 @@ class RankingController extends Controller
     {
         $userId = Auth::id();
         $ids = UserRanking::query()
-            ->where('user_id', $userId)
             ->orderBy('id')
             ->pluck('id')->toArray();
 
@@ -146,19 +177,20 @@ class RankingController extends Controller
         return response()->json($normalization);
     }
 
-    public function calculation(Request $request)
+    public function calculation($reference_code)
     {
         $uuid = Str::uuid();
         try {
             DB::beginTransaction();
             $userId = Auth::id();
+            $form = Form::query()->where('code', $reference_code)->firstOrFail();
             $userRankings = UserRanking::with(
                 [
                     'alternative',
                     'rankings.criteria',
                     'rankings.sub_criteria',
                 ]
-            )->where('user_id', $userId)->orderBy('id');
+            )->where('form_id', $form->id)->orderBy('id');
 
             if ($userRankings->count() <= 0) {
                 throw new DataNotValidException("Data tidak sesuai, silahkan sesuaikan data anda!");
@@ -183,7 +215,7 @@ class RankingController extends Controller
             $userRanking = CurrentUserRanking::query()->create([
                 'user_id' => $userId,
                 'reference_code' => $uuid,
-                'title' => $request->input('title')
+                'title' => $form->title
             ]);
 
             foreach ($userRankings->get() as $ranking) {
@@ -199,6 +231,7 @@ class RankingController extends Controller
                     'alternative_name' => $ranking->alternative->name,
                     'pengguna_id' => $ranking->alternative->pengguna_id,
                     'score' => $score,
+                    'score_akhir' => $score * 100,
                 ]);
 
                 $currentAlternative->current_criterias()->createMany($currentCriteria);
@@ -240,7 +273,8 @@ class RankingController extends Controller
             $response->push([
                 'alternative_name' => $userRanking['alternative_name'],
                 'score' => $userRanking['score'],
-                'status' => $this->findStatusScore($userRanking['score']),
+                'score_akhir' => $userRanking['score_akhir'],
+                'status' => $this->findStatusScore($userRanking['score_akhir']),
                 'current_criterias' => $userRanking['current_criterias']
             ]);
 
@@ -503,5 +537,45 @@ class RankingController extends Controller
         }
 
         return Excel::download(new RankingExport($normalization, $bobots, $response), 'ranking-' . time() . '.xlsx');
+    }
+
+    public function form()
+    {
+        $forms = Form::query()->orderByDesc('id')->get();
+        return view('form.form')->with([
+            'forms' => $forms,
+        ]);
+    }
+
+    public function addForm(Request $request)
+    {
+        try {
+
+            $validator = Validator::make($request->all(),
+                [
+                    'title' => 'required',
+                    'expired_date' => 'required',
+                ],
+                [
+                    'title.required' => 'Title wajib diisi.',
+                    'expired_date.required' => 'Batas pengisian tidak boleh kosong.',
+                ]
+            );
+
+            if ($validator->fails()) {
+                return back()->withErrors($validator)->withInput();
+            }
+            $uuid = Str::uuid();
+            $request = $request->merge(['code' => $uuid, 'user_id' => Auth::id()]);
+
+            Form::query()->create($request->all());
+            return redirect()->route('ranking')->with('success', 'Formulir berhasil ditambahkan');
+
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
+            return back()->withErrors([
+                'error' => 'Gagal menambah formulir.',
+            ]);
+        }
     }
 }

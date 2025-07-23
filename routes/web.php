@@ -61,10 +61,13 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::controller(RankingController::class)->group(function () {
-        Route::get('/ranking', 'index')->name('ranking');
-        Route::get('/ranking/create', 'save')->name('ranking.save');
+        Route::get('/histories', 'index')->name('history');
+        Route::get('/ranking', 'form')->name('ranking');
+        Route::post('/ranking/form-create', 'addForm')->name('ranking.form-create');
+        Route::get('/ranking/create/{reference_code?}', 'save')->name('ranking.save');
+        Route::get('/ranking/show/{reference_code?}', 'showDetail')->name('ranking.show-detail');
         Route::post('/ranking/create', 'create')->name('ranking.submit');
-        Route::post('/ranking/calculation', 'calculation')->name('ranking.calculation');
+        Route::get('/ranking/calculation/{reference_code?}', 'calculation')->name('ranking.calculation');
         Route::get('/ranking/criteria', 'criteria')->name('ranking.criteria');
         Route::get('/flow', 'flow')->name('ranking.flow');
         Route::get('/ranking/{reference_code?}', 'show')->name('ranking.show');

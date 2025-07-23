@@ -42,12 +42,14 @@ trait CalculationTrait
 
     public function findStatusScore($score)
     {
-        if ($score >= 0.8) {
+        if ($score >= 81) {
             return 'Sangat Layak';
-        } elseif ($score >= 0.7) {
+        } elseif ($score >= 61) {
             return 'Layak';
-        } elseif ($score >= 0.6) {
-            return 'Cukup Layak';
+        } elseif ($score >= 41) {
+            return 'Layak Dengan Perbaikan';
+        } elseif ($score >= 21) {
+            return 'Kurang Layak';
         } else {
             return 'Tidak Layak';
         }

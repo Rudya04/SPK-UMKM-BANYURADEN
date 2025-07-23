@@ -4,41 +4,34 @@
 
 @section("content")
     <div class="main-content">
-        <h1 class="h3 mb-4">Perankingan</h1>
+        <h1 class="h3 mb-4">Formulir {{$form->title}}</h1>
 
         <!-- Charts Row -->
         <div class="row mb-2">
             <div class="col-xl-4 mb-4">
                 <div class="card fade-in" style="animation-delay: 0.4s">
                     <div class="card-body">
-                        @error("error")
-                        <div class="alert alert-danger" role="alert">
-                            {{ $message }}
-                        </div>
-                        @enderror
+                        @if ($errors->has('error'))
+                            <div class="alert alert-danger">
+                                {{ $errors->first('error') }}
+                            </div>
+                        @endif
                         @if(session('success'))
                             <div class="alert alert-success" role="alert">
                                 {{ session('success') }}
                             </div>
                         @endif
+                        @unlessrole('admin')
                         <form id="form-submit" action="{{ route("ranking.submit") }}" method="POST">
                             @csrf
                             <div class="mb-2">
-                                <label for="alternative_id" class="form-label">Alternative</label>
-                                <select class="form-select" id="alternative_id" name="alternative_id">
-                                    <option value="">-- Pilih Alternative --</option>
-                                    @foreach ($alternatives as $alternative)
-                                        <option
-                                            value="{{ $alternative->id }}" {{ old('alternative_id') == $alternative->id ? 'selected' : '' }}>
-                                            {{ $alternative->name }} ({{ $alternative->pengusaha->email }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                @if($errors->has('alternative_id'))
-                                    <div id="alternative_id" class="form-text text-danger">
-                                        {{ $errors->first('alternative_id') }}
-                                    </div>
-                                @endif
+                                <input type="hidden" class="form-control" name="form_id"
+                                       value="{{ $form->id }}">
+                                <input type="hidden" class="form-control" name="alternative_id"
+                                       value="{{ $alternative->id }}">
+                                <label for="alternative" class="form-label">Nama Alternative</label>
+                                <input type="text" class="form-control" id="alternative" name="alternative"
+                                       value="{{ $alternative->pengusaha->email }}" readonly disabled>
                             </div>
                             @foreach($criterias as $criteria)
                                 <div class="mb-2">
@@ -48,7 +41,7 @@
                                         @foreach ($criteria->subCriterias as $sub)
                                             <option
                                                 value="{{ $sub->id }}" {{ old($criteria->slug) == $sub->id ? 'selected' : '' }}>
-                                                {{ $sub->name }} ({{ $sub->value }})
+                                                {{ $sub->name }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -59,8 +52,11 @@
                                     @endif
                                 </div>
                             @endforeach
-                            <button type="submit" class="btn btn-primary">Tambah</button>
+                            @if(count($rankings) <= 0)
+                                <button type="submit" class="btn btn-primary">Tambah</button>
+                            @endif
                         </form>
+                        @endunlessrole
                     </div>
                 </div>
             </div>
@@ -70,17 +66,7 @@
                     <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
                         <div>
                             <h5 class="card-title mb-2">List Perankingan</h5>
-                            <a href="#" id="find-criteria" data-bs-toggle="modal" data-bs-target="#list-criteria"><span
-                                    class="badge bg-secondary">Lihat Bobot</span></a>
                         </div>
-                        <form action="{{ route('ranking.calculation') }}" method="POST">
-                            @csrf
-                            <div class="mb-3">
-                                <label for="title" class="form-label">Judul Perhitungan</label>
-                                <input type="text" class="form-control" id="title" name="title" placeholder="Example:Bantuan desa" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary float-left text-white">Hitung Ranking</button>
-                        </form>
                     </div>
                     <div class="card-body">
                         <div class="table-wrapper">
@@ -90,9 +76,13 @@
                                     <th>#</th>
                                     <th>Alternative</th>
                                     <th>Criteria</th>
+                                    @role('admin')
                                     <th>Bobot</th>
+                                    @endrole
                                     <th>Sub Criteria</th>
+                                    @role('admin')
                                     <th>Nilai</th>
+                                    @endrole
                                     <th>Aksi</th>
                                 </tr>
                                 </thead>
@@ -108,9 +98,13 @@
                                                 <td rowspan="{{ $count }}">{{ $ranking->alternative->name }}</td>
                                             @endif
                                             <td>{{ $rank->criteria->name }}</td>
+                                            @role('admin')
                                             <td>{{ $rank->criteria->value }}</td>
+                                            @endrole
                                             <td>{{ $rank->sub_criteria->name }}</td>
+                                            @role('admin')
                                             <td>{{ $rank->sub_criteria->value }}</td>
+                                            @endrole
                                             @if($j == 1)
                                                 <td rowspan="{{ $count }}">
                                                     <button data-id="{{ $ranking->id }}"
@@ -151,16 +145,13 @@
                         @method('PUT')
                         <input type="hidden" id="edit-id">
                         <div class="mb-2">
-                            <label for="alternative_id" class="form-label">Alternative</label>
-                            <select class="form-select" id="edit-alternative_id" name="alternative_id">
-                                <option value="">-- Pilih Alternative --</option>
-                                @foreach ($alternatives as $alternative)
-                                    <option
-                                        value="{{ $alternative->id }}" {{ old('alternative_id') == $alternative->id ? 'selected' : '' }}>
-                                        {{ $alternative->name }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <input type="hidden" class="form-control" name="form_id"
+                                   value="{{ $form->id }}">
+                            <input type="hidden" class="form-control" id="alternative_id" name="alternative_id"
+                                   value="{{ $alternative->id }}">
+                            <label for="alternative" class="form-label">Nama Alternative</label>
+                            <input type="text" class="form-control" id="alternative" name="alternative"
+                                   value="{{ $alternative->pengusaha->email }}" readonly disabled>
                         </div>
                         @foreach($criterias as $criteria)
                             <div class="mb-2">
@@ -171,7 +162,7 @@
                                     @foreach ($criteria->subCriterias as $sub)
                                         <option
                                             value="{{ $sub->id }}" {{ old($criteria->slug) == $sub->id ? 'selected' : '' }}>
-                                            {{ $sub->name }} ({{ $sub->value }})
+                                            {{ $sub->name }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -228,9 +219,9 @@
                 $.get('/ranking/criteria', function (data) {
                     let tbody = $('#criterias');
                     tbody.empty();
-
+                    let totalBobotNormal = 0;
                     data.forEach(function (item, index) {
-                        console.log(index);
+                        totalBobotNormal += item.bobot_normal;
                         let row = `<tr>
                                     <td>${index + 1}</td>
                                     <td>${item.name}</td>
@@ -239,6 +230,11 @@
                                   </tr>`;
                         tbody.append(row);
                     })
+                    let totalRow = `<tr>
+                                          <td colspan="3"><strong>Total Bobot Normal</strong></td>
+                                          <td><strong>${totalBobotNormal}</strong></td>
+                                        </tr>`;
+                    tbody.append(totalRow);
 
                 })
             })
