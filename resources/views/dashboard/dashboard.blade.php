@@ -8,52 +8,13 @@
 
         <!-- Dashboard Stats -->
         <div class="row mb-4">
-            <div class="col-md-6 col-xl-3 mb-4 fade-in">
-                <div class="card dashboard-card bg-primary text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="card-title mb-1">Total Perhitungan Ranking</h6>
-                                <h3 class="card-text mb-0">{{ $data['totalRanking'] }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-xl-3 mb-4 fade-in" style="animation-delay: 0.1s">
-                <div class="card dashboard-card bg-success text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="card-title mb-1">Jumlah Perhitungan Hari Ini</h6>
-                                <h3 class="card-text mb-0">{{ $data['totalRankingToday'] }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-xl-3 mb-4 fade-in" style="animation-delay: 0.2s">
+                        <div class="col-md-6 col-xl-3 mb-4 fade-in" style="animation-delay: 0.2s">
                 <div class="card dashboard-card bg-warning text-white">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h6 class="card-title mb-1">Jumlah UMKM</h6>
                                 <h3 class="card-text mb-0">{{ $data['totalUmkm'] }}</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-6 col-xl-3 mb-4 fade-in" style="animation-delay: 0.3s">
-                <div class="card dashboard-card bg-info text-white">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h6 class="card-title mb-1">Total Pengguna</h6>
-                                <h3 class="card-text mb-0">{{ $data['totalUser'] }}</h3>
                             </div>
                         </div>
                     </div>
