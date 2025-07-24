@@ -33,23 +33,44 @@ class RankingController extends Controller
 
     public function index()
     {
-        $curentUserRanking = CurrentUserRanking::query()->where('user_id', Auth::id())
-            ->orderByDesc('id')->get();
-
         if (Auth::user()->hasRole(RoleEnum::PENGUSAHA->value)) {
-            $curentUserRanking = CurrentUserRanking::query()
-                ->select('current_users_rankings.title', 'current_users_rankings.reference_code', 'current_users_rankings.created_at')
+            $result = collect();
+            $curentUserRankings = CurrentUserRanking::query()
+                ->select('current_users_rankings.title',
+                    'current_users_rankings.reference_code',
+                    'current_alternatives.alternative_name',
+                    'current_alternatives.score_akhir',
+                    'current_users_rankings.created_at')
                 ->join('current_alternatives', 'current_alternatives.current_user_ranking_id', '=', 'current_users_rankings.id')
                 ->where('current_alternatives.pengusaha_id', Auth::id())
                 ->groupBy('current_users_rankings.id',
                     'current_users_rankings.title',
                     'current_users_rankings.reference_code',
+                    'current_alternatives.alternative_name',
+                    'current_alternatives.score_akhir',
                     'current_users_rankings.created_at')
                 ->orderByDesc('current_users_rankings.id')
                 ->get();
+
+            foreach ($curentUserRankings as $curentUserRanking) {
+                    $status = $this->findStatusScore($curentUserRanking->score_akhir);
+                    $result->push([
+                        'title' => $curentUserRanking->title,
+                        'reference_code' => $curentUserRanking->reference_code,
+                        'name' => $curentUserRanking->alternative_name,
+                        'score_akhir' => $curentUserRanking->score_akhir,
+                        'status' => $status,
+                        'created_at' => $curentUserRanking->created_at->format('d-m-Y H:i:s'),
+                    ]);
+            }
+
+            return view('ranking.ranking-pengusaha')->with('curentUserRanking', $result);
+        } else {
+            $curentUserRanking = CurrentUserRanking::query()->orderByDesc('id')->get();
+            return view('ranking.ranking')->with('curentUserRanking', $curentUserRanking);
         }
 
-        return view('ranking.ranking')->with('curentUserRanking', $curentUserRanking);
+
     }
 
     public function save($reference_code)
@@ -229,7 +250,7 @@ class RankingController extends Controller
                     'current_user_ranking_id' => $userRanking->id,
                     'alternative_id' => $ranking->alternative_id,
                     'alternative_name' => $ranking->alternative->name,
-                    'pengguna_id' => $ranking->alternative->pengguna_id,
+                    'pengusaha_id' => $ranking->alternative->pengusaha_id,
                     'score' => $score,
                     'score_akhir' => $score * 100,
                 ]);
@@ -627,7 +648,7 @@ class RankingController extends Controller
             $form->delete();
             DB::commit();
             return response()->json(['success' => true], 200);
-        }catch (\Exception $th) {
+        } catch (\Exception $th) {
             DB::rollBack();
             Log::error($th->getMessage());
             return response()->json(['errorFirst' => 'Gagal menghapus formulir.'], 422);

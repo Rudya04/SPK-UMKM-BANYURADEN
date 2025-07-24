@@ -12,6 +12,7 @@
                     <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
                         <h5 class="card-title mb-0">History Ranking</h5>
                     </div>
+{{--                    @dd($curentUserRanking);--}}
                     <div class="card-body">
                         <table class="table">
                             <thead>
@@ -19,7 +20,9 @@
                                 <th scope="col">#</th>
                                 <th scope="col">Tanggal</th>
                                 <th scope="col">Title</th>
-                                <th scope="col">Aksi</th>
+                                <th scope="col">Nama</th>
+                                <th scope="col">Score</th>
+                                <th scope="col">Status</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -27,16 +30,11 @@
                             @foreach($curentUserRanking as $userRanking)
                                 <tr>
                                     <th scope="row">{{ $i }}</th>
-                                    <td>{{ $userRanking->created_at }}</td>
-                                    <td>{{ $userRanking->title }}</td>
-                                    <td>
-                                        <a href="{{ route('ranking.show', ['reference_code' => $userRanking->reference_code]) }}"><span
-                                                class="badge bg-primary">Detail</span></a>
-
-                                        <a href="{{ route('ranking.export', ['reference_code' => $userRanking->reference_code]) }}"><span
-                                                class="badge bg-info">Export</span></a>
-
-                                    </td>
+                                    <td>{{ $userRanking['created_at'] }}</td>
+                                    <td>{{ $userRanking['title'] }}</td>
+                                    <td>{{ $userRanking['name'] }}</td>
+                                    <td>{{ $userRanking['score_akhir'] }}</td>
+                                    <td>{{ $userRanking['status'] }}</td>
                                 </tr>
                                 @php($i++)
                             @endforeach
