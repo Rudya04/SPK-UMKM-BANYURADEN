@@ -39,6 +39,7 @@ class NilaiRankingSheetExport implements FromCollection, WithTitle, WithHeadings
                 $data->push($criteria['score']);
             }
             $data->push($respon['score']);
+            $data->push($respon['score_akhir']);
             $data->push($respon['status']);
 
             $res->push($data);
@@ -60,6 +61,7 @@ class NilaiRankingSheetExport implements FromCollection, WithTitle, WithHeadings
             $haeds->push($bobot->criteria_name);
         }
         $haeds->push('Score');
+        $haeds->push('Score Akhir');
         $haeds->push('Status');
         return $haeds->toArray();
     }

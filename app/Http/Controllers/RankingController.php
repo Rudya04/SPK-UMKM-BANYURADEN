@@ -530,7 +530,8 @@ class RankingController extends Controller
             $response->push([
                 'alternative_name' => $userRanking['alternative_name'],
                 'score' => $userRanking['score'],
-                'status' => $this->findStatusScore($userRanking['score']),
+                'score_akhir' => $userRanking['score_akhir'],
+                'status' => $this->findStatusScore($userRanking['score_akhir']),
                 'current_criterias' => $userRanking['current_criterias']
             ]);
 
@@ -576,6 +577,60 @@ class RankingController extends Controller
             return back()->withErrors([
                 'error' => 'Gagal menambah formulir.',
             ]);
+        }
+    }
+
+    public function showForm($id)
+    {
+        $form = Form::query()->findOrFail($id);
+
+        return response()->json($form);
+    }
+
+    public function updateForm(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(),
+            [
+                'title' => 'required',
+                'expired_date' => 'required',
+            ],
+            [
+                'title.required' => 'Nama wajib diisi.',
+                'expired_date.required' => 'Expired date wajib diisi.',
+            ]
+        );
+
+        if ($validator->fails()) {
+            $firstError = $validator->errors()->first();
+            return response()->json(['errorFirst' => $firstError], 422);
+        }
+
+        try {
+            DB::beginTransaction();
+            $form = Form::query()->findOrFail($id);
+            $form->update($request->all());
+            DB::commit();
+            return response()->json(['success' => true], 200);
+        } catch (\Exception $th) {
+            DB::rollBack();
+            Log::error($th->getMessage());
+            return response()->json(['errorFirst' => 'Gagal memperbarui formulir.'], 422);
+        }
+    }
+
+    public function deleteForm($id)
+    {
+        try {
+            DB::beginTransaction();
+            $form = Form::query()->findOrFail($id);
+            UserRanking::query()->where('form_id', $form->id)->delete();
+            $form->delete();
+            DB::commit();
+            return response()->json(['success' => true], 200);
+        }catch (\Exception $th) {
+            DB::rollBack();
+            Log::error($th->getMessage());
+            return response()->json(['errorFirst' => 'Gagal menghapus formulir.'], 422);
         }
     }
 }

@@ -41,16 +41,10 @@
                                     <td data-name="expired_at">{{ $form->expired_date }}</td>
                                     @role('admin')
                                     <td>
-                                        <div class="input-group">
-                                            <input type="text" class="form-control" id="linkInput"
-                                                   value="https://example.com/my-link" readonly>
-                                            <button class="btn btn-outline-secondary" type="button" id="copyButton">
-                                                Copy
-                                            </button>
-                                        </div>
-                                        <!-- Feedback -->
-                                        <div id="copyFeedback" class="text-success small mt-1" style="display: none;">
-                                            Link berhasil disalin!
+                                        <div>
+                                            <input type="text" class="linkInput" value="{{ route('ranking.show-detail', ['reference_code' => $form->code]) }}" readonly disabled>
+                                            <button class="copyButton">Copy</button>
+                                            <span class="copyFeedback" style="display:none; color:green;">Tersalin!</span>
                                         </div>
                                     </td>
                                     @endrole
@@ -60,7 +54,7 @@
                                            class="btn btn-sm btn-info view"><i
                                                 class="fas fa-eye"></i></a>
                                         <button data-id="{{ $form->id }}" class="btn btn-sm btn-warning edit"
-                                                data-bs-toggle="modal" data-bs-target="#edit-criteria"><i
+                                                data-bs-toggle="modal" data-bs-target="#edit-formulir"><i
                                                 class="fas fa-edit"></i></button>
                                         <button data-id="{{ $form->id }}" class="btn btn-sm btn-danger delete"><i
                                                 class="fas fa-trash"></i></button>
@@ -80,6 +74,35 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+    <div class="modal fade" id="edit-formulir" tabindex="-1" aria-labelledby="edit-alternative" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Edit Form</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="edit-form">
+                    <div class="modal-body">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" id="edit-id">
+                        <div class="mb-2">
+                            <label for="edit-title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="edit-title" name="title">
+                        </div>
+                        <div class="mb-2">
+                            <label for="edit-expired_date" class="form-label">Batas Pengisian</label>
+                            <input type="date" class="form-control" id="edit-expired_date" name="expired_date">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
     <div class="modal fade" id="tambah-form" tabindex="-1" aria-labelledby="tambah-form" aria-hidden="true">
@@ -111,18 +134,77 @@
         </div>
     </div>
     <script>
-        document.getElementById('copyButton').addEventListener('click', function () {
-            const input = document.getElementById('linkInput');
-            input.select();
-            input.setSelectionRange(0, 99999);
+        document.querySelectorAll('.copyButton').forEach(function(button) {
+            button.addEventListener('click', function () {
+                const parent = button.parentElement;
+                const input = parent.querySelector('.linkInput');
+                const feedback = parent.querySelector('.copyFeedback');
 
-            navigator.clipboard.writeText(input.value).then(function () {
-                const feedback = document.getElementById('copyFeedback');
-                feedback.style.display = 'block';
-                setTimeout(() => feedback.style.display = 'none', 2000);
-            }).catch(function (err) {
-                console.error('Gagal menyalin: ', err);
+                input.select();
+                input.setSelectionRange(0, 99999); // Untuk iOS
+
+                navigator.clipboard.writeText(input.value).then(function () {
+                    feedback.style.display = 'block';
+                    setTimeout(() => feedback.style.display = 'none', 2000);
+                }).catch(function (err) {
+                    console.error('Gagal menyalin: ', err);
+                });
             });
+        });
+
+
+        $(document).ready(function () {
+
+            $('.edit').on('click', function () {
+                let id = $(this).data('id');
+                $.get('/ranking/form-edit/' + id, function (data) {
+                    $('#edit-id').val(data.id)
+                    $('#edit-title').val(data.title)
+                    $('#edit-expired_date').val(data.expired_date)
+                })
+            });
+
+            $('#edit-form').submit(function (e) {
+                e.preventDefault();
+                $('#loading-overlay').css('display', 'flex');
+                $('#loading-overlay').fadeIn();
+                let id = $('#edit-id').val();
+                $.ajax({
+                    url: '/ranking/form-update/' + id,
+                    method: 'POST',
+                    data : $(this).serialize(),
+                    success: function (res) {
+                        alert("Update data berhasil !");
+                        $('#edit-alternative').hide();
+                        location.reload();
+                    },
+                    error: function (res) {
+                        alert(res.responseJSON.errorFirst);
+                        $('#loading-overlay').css('display', 'none');
+                        $('#loading-overlay').fadeOut();
+                    }
+                })
+            })
+
+            $('.delete').on('click', function () {
+                if (!confirm('Yakin ingin menghapus data ini, Data formulir akan ikut terhapus ?')) return;
+                $('#loading-overlay').css('display', 'flex');
+                $('#loading-overlay').fadeIn();
+                let id = $(this).data('id');
+                $.ajax({
+                    url: '/ranking/form-delete/' + id,
+                    method: 'GET',
+                    success: function (res) {
+                        alert("Hapus data berhasil !");
+                        location.reload();
+                    },
+                    error: function (res) {
+                        alert('Gagal menghapus data.');
+                        $('#loading-overlay').css('display', 'none');
+                        $('#loading-overlay').fadeOut();
+                    }
+                })
+            })
         });
     </script>
 

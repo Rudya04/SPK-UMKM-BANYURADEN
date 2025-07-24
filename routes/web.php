@@ -61,9 +61,12 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::controller(RankingController::class)->group(function () {
-        Route::get('/histories', 'index')->name('history');
+        Route::get('/histories', 'index')->name('ranking.history');
         Route::get('/ranking', 'form')->name('ranking');
         Route::post('/ranking/form-create', 'addForm')->name('ranking.form-create');
+        Route::get('/ranking/form-edit/{id}', 'showForm')->name('ranking.form-show');
+        Route::put('/ranking/form-update/{id}', 'updateForm')->name('ranking.form-update');
+        Route::get('/ranking/form-delete/{id}', 'deleteForm')->name('ranking.form-delete');
         Route::get('/ranking/create/{reference_code?}', 'save')->name('ranking.save');
         Route::get('/ranking/show/{reference_code?}', 'showDetail')->name('ranking.show-detail');
         Route::post('/ranking/create', 'create')->name('ranking.submit');

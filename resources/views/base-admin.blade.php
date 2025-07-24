@@ -517,6 +517,12 @@
                 </a>
             </li>
             <li class="nav-item">
+                <a href="{{ route('ranking.history') }}" class="nav-link {{ request()->is('histories*') ? 'active' : '' }}">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Histori</span>
+                </a>
+            </li>
+            <li class="nav-item">
                 <a href="{{ route('guide.index') }}" class="nav-link {{ request()->is('guide*') ? 'active' : '' }}">
                     <i class="bi bi-journal-bookmark"></i>
                     <span>Panduan</span>
