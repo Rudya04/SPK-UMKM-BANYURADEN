@@ -10,6 +10,27 @@
                 <a href="{{ route('ranking.export', [ 'reference_code' => $referenceCode]) }}" class="btn btn-primary">Export</a>
             </section>
         </div>
+        <form method="GET">
+            <div class="row my-4">
+                <div class="col-12 p-2 border rounded">
+                    <div class="d-flex flex-row gap-4 mb-2">
+                        @foreach ($bobots as $bobot)
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="filter_kriteria[]" value="{{ $bobot->criteria_name }}"
+                                    {{ in_array($bobot->criteria_name, $selectedKriteria ?? []) ? 'checked' : '' }}>
+                                <label class="form-check-label">
+                                    {{ $bobot->criteria_name }}
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+                    <section class="my-4 d-flex justify-content-start">
+                        <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+                    </section>
+                </div>
+            </div>
+        </form>
+
 
         <!-- Charts Row -->
         <div class="row mb-2">
@@ -65,9 +86,11 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Alternative</th>
-                                    @foreach($bobots as $bobot)
-                                        <th>{{ $bobot->criteria_name }}</th>
-                                    @endforeach
+                                    @if(isset($datas[0]))
+                                        @foreach ($datas[0]['current_criterias'] as $criteria)
+                                            <th>{{ $criteria['criteria_name'] }}</th>
+                                        @endforeach
+                                    @endif
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -104,9 +127,11 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Alternative</th>
-                                    @foreach($bobots as $bobot)
-                                        <th>{{ $bobot->criteria_name }}</th>
-                                    @endforeach
+                                    @if(isset($datas[0]))
+                                        @foreach ($datas[0]['current_criterias'] as $criteria)
+                                            <th>{{ $criteria['criteria_name'] }}</th>
+                                        @endforeach
+                                    @endif
                                     <th>Score</th>
                                     <th>Score Akhir</th>
                                     <th>Status</th>

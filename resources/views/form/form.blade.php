@@ -42,7 +42,7 @@
                                     @role('admin')
                                     <td>
                                         <div>
-                                            <input type="text" class="linkInput" value="{{ route('ranking.show-detail', ['reference_code' => $form->code]) }}" readonly disabled>
+                                            <input type="text" class="linkInput" value="{{ route('ranking.save', ['reference_code' => $form->code]) }}" readonly disabled>
                                             <button class="copyButton">Copy</button>
                                             <span class="copyFeedback" style="display:none; color:green;">Tersalin!</span>
                                         </div>

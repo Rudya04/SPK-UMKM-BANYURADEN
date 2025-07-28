@@ -277,8 +277,14 @@ class RankingController extends Controller
 
     public function show($referenceCode)
     {
+        $selectedKriteria = request()->get('filter_kriteria', []);
+
+        Log::info(serialize($selectedKriteria));
         $response = collect();
-        $currentUserRanking = CurrentUserRanking::with(['current_alternatives.current_criterias'])->where('reference_code', $referenceCode)->firstOrFail()->toArray();
+        $currentUserRanking = CurrentUserRanking::with(['current_alternatives.current_criterias'])
+            ->where('reference_code', $referenceCode)
+            ->firstOrFail()
+            ->toArray();
         $bobots = DB::table('current_criterias')
             ->select('current_criterias.criteria_name', DB::raw('MAX(current_criterias.criteria_value) as value'))
             ->join('current_alternatives', 'current_alternatives.id', '=', 'current_criterias.current_alternative_id')
@@ -291,14 +297,25 @@ class RankingController extends Controller
         $normalization = $this->normalizationBobot($bobotArray);
 
         foreach ($currentUserRanking['current_alternatives'] as $userRanking) {
+            $criterias = collect($userRanking['current_criterias']);
+
+            // Filter hanya kriteria yang dipilih jika ada pilihan
+            if (!empty($selectedKriteria)) {
+                $criterias = $criterias->filter(function ($item) use ($selectedKriteria) {
+                    return in_array($item['criteria_name'], $selectedKriteria);
+                })->values(); // reset index
+            }
+
+//            $score = $criterias->sum('score');
+//            $scoreAkhir = $score * 100;
+
             $response->push([
                 'alternative_name' => $userRanking['alternative_name'],
                 'score' => $userRanking['score'],
                 'score_akhir' => $userRanking['score_akhir'],
                 'status' => $this->findStatusScore($userRanking['score_akhir']),
-                'current_criterias' => $userRanking['current_criterias']
+                'current_criterias' => $criterias
             ]);
-
         }
 
         return view('ranking.detail-ranking')->with([
@@ -306,6 +323,7 @@ class RankingController extends Controller
             'datas' => $response,
             'bobots' => $bobots,
             'normalizations' => $normalization,
+            'selectedKriteria' => $selectedKriteria // optional: buat checkbox tetap tercentang
         ]);
     }
 
